@@ -1,0 +1,1811 @@
+Terminals which are not used
+
+   REAL
+   STRING
+
+
+Grammar
+
+    0 $accept: Input $end
+
+    1 Input: Function END_OF_FILE
+    2      | Function Leol END_OF_FILE
+    3      | Function Leol Input
+
+    4 Leol: EOL Leol
+    5     | EOL
+
+    6 Function: Prot Insts END
+
+    7 Prot: TYPE NAME LP RP EOL
+    8     | TYPE NAME LP ListArg RP EOL
+
+    9 ListArg: Arg
+   10        | Arg VIRGUL ListArg
+
+   11 Arg: TYPE NAME
+
+   12 Insts: /* empty */
+   13      | SetLine Insts
+   14      | CallLine Insts
+   15      | Bloc Insts
+   16      | DefVarLine Insts
+
+   17 DefVarLine: TYPE NAME EOL
+   18           | TYPE NAME SetLine
+
+   19 SetLine: Set EOL
+
+   20 Set: NAME SET Expr
+
+   21 CallLine: Call EOL
+
+   22 Call: NAME LP RP
+   23     | NAME LP ListParam RP
+
+   24 ListParam: NAME VIRGUL ListParam
+   25          | NAME
+
+   26 Bloc: If EOL
+   27     | While EOL
+   28     | For EOL
+
+   29 If: Bif Insts END
+   30   | Bif Insts ELSE Insts END
+
+   31 Bif: IF LP CBool RP EOL
+
+   32 CBool: /* empty */
+   33      | BOOL
+   34      | NOT CBool
+   35      | LP CBool RP
+   36      | CBool OR CBool
+   37      | CBool AND CBool
+   38      | CBool EQ CBool
+   39      | CBool NE CBool
+   40      | CBool GT CBool
+   41      | CBool GE CBool
+   42      | CBool LT CBool
+   43      | CBool LE CBool
+
+   44 While: Bwhile Insts END
+
+   45 Bwhile: WHILE LP CBool RP EOL
+
+   46 For: Bfor Insts END
+
+   47 Bfor: FOR LP InstsList COLON CBool COLON InstsList RP EOL
+
+   48 InstsList: /* empty */
+   49          | IList
+
+   50 IList: Set VIRGUL IList
+   51      | Call VIRGUL IList
+   52      | Set
+   53      | Call
+
+   54 Expr: TYPE
+   55     | NAME
+   56     | Call
+   57     | Expr PLUS Expr
+   58     | Expr MINUS Expr
+   59     | Expr MULT Expr
+   60     | Expr DIV Expr
+   61     | Expr MOD Expr
+   62     | MINUS Expr
+   63     | Expr POW Expr
+   64     | LP Expr RP
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+error (256)
+END_OF_FILE (258) 1 2
+EOL (259) 4 5 7 8 17 19 21 26 27 28 31 45 47
+LP (260) 7 8 22 23 31 35 45 47 64
+RP (261) 7 8 22 23 31 35 45 47 64
+VIRGUL (262) 10 24 50 51
+COLON (263) 47
+PLUS (264) 57
+MINUS (265) 58 62
+MULT (266) 59
+DIV (267) 60
+MOD (268) 61
+SET (269) 20
+EQ (270) 38
+GT (271) 40
+GE (272) 41
+LT (273) 42
+LE (274) 43
+NE (275) 39
+NOT (276) 34
+OR (277) 36
+AND (278) 37
+END (279) 6 29 30 44 46
+TYPE (280) 7 8 11 17 18 54
+FOR (281) 47
+WHILE (282) 45
+IF (283) 31
+ELSE (284) 30
+BOOL (285) 33
+REAL (286)
+STRING (287)
+NAME (288) 7 8 11 17 18 20 22 23 24 25 55
+NEG (289)
+POW (290) 63
+
+
+Nonterminals, with rules where they appear
+
+$accept (36)
+    on left: 0
+Input (37)
+    on left: 1 2 3, on right: 0 3
+Leol (38)
+    on left: 4 5, on right: 2 3 4
+Function (39)
+    on left: 6, on right: 1 2 3
+Prot (40)
+    on left: 7 8, on right: 6
+ListArg (41)
+    on left: 9 10, on right: 8 10
+Arg (42)
+    on left: 11, on right: 9 10
+Insts (43)
+    on left: 12 13 14 15 16, on right: 6 13 14 15 16 29 30 44 46
+DefVarLine (44)
+    on left: 17 18, on right: 16
+SetLine (45)
+    on left: 19, on right: 13 18
+Set (46)
+    on left: 20, on right: 19 50 52
+CallLine (47)
+    on left: 21, on right: 14
+Call (48)
+    on left: 22 23, on right: 21 51 53 56
+ListParam (49)
+    on left: 24 25, on right: 23 24
+Bloc (50)
+    on left: 26 27 28, on right: 15
+If (51)
+    on left: 29 30, on right: 26
+Bif (52)
+    on left: 31, on right: 29 30
+CBool (53)
+    on left: 32 33 34 35 36 37 38 39 40 41 42 43, on right: 31 34 35
+    36 37 38 39 40 41 42 43 45 47
+While (54)
+    on left: 44, on right: 27
+Bwhile (55)
+    on left: 45, on right: 44
+For (56)
+    on left: 46, on right: 28
+Bfor (57)
+    on left: 47, on right: 46
+InstsList (58)
+    on left: 48 49, on right: 47
+IList (59)
+    on left: 50 51 52 53, on right: 49 50 51
+Expr (60)
+    on left: 54 55 56 57 58 59 60 61 62 63 64, on right: 20 57 58 59
+    60 61 62 63 64
+
+
+state 0
+
+    0 $accept: . Input $end
+
+    TYPE  shift, and go to state 1
+
+    Input     go to state 2
+    Function  go to state 3
+    Prot      go to state 4
+
+
+state 1
+
+    7 Prot: TYPE . NAME LP RP EOL
+    8     | TYPE . NAME LP ListArg RP EOL
+
+    NAME  shift, and go to state 5
+
+
+state 2
+
+    0 $accept: Input . $end
+
+    $end  shift, and go to state 6
+
+
+state 3
+
+    1 Input: Function . END_OF_FILE
+    2      | Function . Leol END_OF_FILE
+    3      | Function . Leol Input
+
+    END_OF_FILE  shift, and go to state 7
+    EOL          shift, and go to state 8
+
+    Leol  go to state 9
+
+
+state 4
+
+    6 Function: Prot . Insts END
+
+    TYPE   shift, and go to state 10
+    FOR    shift, and go to state 11
+    WHILE  shift, and go to state 12
+    IF     shift, and go to state 13
+    NAME   shift, and go to state 14
+
+    $default  reduce using rule 12 (Insts)
+
+    Insts       go to state 15
+    DefVarLine  go to state 16
+    SetLine     go to state 17
+    Set         go to state 18
+    CallLine    go to state 19
+    Call        go to state 20
+    Bloc        go to state 21
+    If          go to state 22
+    Bif         go to state 23
+    While       go to state 24
+    Bwhile      go to state 25
+    For         go to state 26
+    Bfor        go to state 27
+
+
+state 5
+
+    7 Prot: TYPE NAME . LP RP EOL
+    8     | TYPE NAME . LP ListArg RP EOL
+
+    LP  shift, and go to state 28
+
+
+state 6
+
+    0 $accept: Input $end .
+
+    $default  accept
+
+
+state 7
+
+    1 Input: Function END_OF_FILE .
+
+    $default  reduce using rule 1 (Input)
+
+
+state 8
+
+    4 Leol: EOL . Leol
+    5     | EOL .
+
+    EOL  shift, and go to state 8
+
+    $default  reduce using rule 5 (Leol)
+
+    Leol  go to state 29
+
+
+state 9
+
+    2 Input: Function Leol . END_OF_FILE
+    3      | Function Leol . Input
+
+    END_OF_FILE  shift, and go to state 30
+    TYPE         shift, and go to state 1
+
+    Input     go to state 31
+    Function  go to state 3
+    Prot      go to state 4
+
+
+state 10
+
+   17 DefVarLine: TYPE . NAME EOL
+   18           | TYPE . NAME SetLine
+
+    NAME  shift, and go to state 32
+
+
+state 11
+
+   47 Bfor: FOR . LP InstsList COLON CBool COLON InstsList RP EOL
+
+    LP  shift, and go to state 33
+
+
+state 12
+
+   45 Bwhile: WHILE . LP CBool RP EOL
+
+    LP  shift, and go to state 34
+
+
+state 13
+
+   31 Bif: IF . LP CBool RP EOL
+
+    LP  shift, and go to state 35
+
+
+state 14
+
+   20 Set: NAME . SET Expr
+   22 Call: NAME . LP RP
+   23     | NAME . LP ListParam RP
+
+    LP   shift, and go to state 36
+    SET  shift, and go to state 37
+
+
+state 15
+
+    6 Function: Prot Insts . END
+
+    END  shift, and go to state 38
+
+
+state 16
+
+   16 Insts: DefVarLine . Insts
+
+    TYPE   shift, and go to state 10
+    FOR    shift, and go to state 11
+    WHILE  shift, and go to state 12
+    IF     shift, and go to state 13
+    NAME   shift, and go to state 14
+
+    $default  reduce using rule 12 (Insts)
+
+    Insts       go to state 39
+    DefVarLine  go to state 16
+    SetLine     go to state 17
+    Set         go to state 18
+    CallLine    go to state 19
+    Call        go to state 20
+    Bloc        go to state 21
+    If          go to state 22
+    Bif         go to state 23
+    While       go to state 24
+    Bwhile      go to state 25
+    For         go to state 26
+    Bfor        go to state 27
+
+
+state 17
+
+   13 Insts: SetLine . Insts
+
+    TYPE   shift, and go to state 10
+    FOR    shift, and go to state 11
+    WHILE  shift, and go to state 12
+    IF     shift, and go to state 13
+    NAME   shift, and go to state 14
+
+    $default  reduce using rule 12 (Insts)
+
+    Insts       go to state 40
+    DefVarLine  go to state 16
+    SetLine     go to state 17
+    Set         go to state 18
+    CallLine    go to state 19
+    Call        go to state 20
+    Bloc        go to state 21
+    If          go to state 22
+    Bif         go to state 23
+    While       go to state 24
+    Bwhile      go to state 25
+    For         go to state 26
+    Bfor        go to state 27
+
+
+state 18
+
+   19 SetLine: Set . EOL
+
+    EOL  shift, and go to state 41
+
+
+state 19
+
+   14 Insts: CallLine . Insts
+
+    TYPE   shift, and go to state 10
+    FOR    shift, and go to state 11
+    WHILE  shift, and go to state 12
+    IF     shift, and go to state 13
+    NAME   shift, and go to state 14
+
+    $default  reduce using rule 12 (Insts)
+
+    Insts       go to state 42
+    DefVarLine  go to state 16
+    SetLine     go to state 17
+    Set         go to state 18
+    CallLine    go to state 19
+    Call        go to state 20
+    Bloc        go to state 21
+    If          go to state 22
+    Bif         go to state 23
+    While       go to state 24
+    Bwhile      go to state 25
+    For         go to state 26
+    Bfor        go to state 27
+
+
+state 20
+
+   21 CallLine: Call . EOL
+
+    EOL  shift, and go to state 43
+
+
+state 21
+
+   15 Insts: Bloc . Insts
+
+    TYPE   shift, and go to state 10
+    FOR    shift, and go to state 11
+    WHILE  shift, and go to state 12
+    IF     shift, and go to state 13
+    NAME   shift, and go to state 14
+
+    $default  reduce using rule 12 (Insts)
+
+    Insts       go to state 44
+    DefVarLine  go to state 16
+    SetLine     go to state 17
+    Set         go to state 18
+    CallLine    go to state 19
+    Call        go to state 20
+    Bloc        go to state 21
+    If          go to state 22
+    Bif         go to state 23
+    While       go to state 24
+    Bwhile      go to state 25
+    For         go to state 26
+    Bfor        go to state 27
+
+
+state 22
+
+   26 Bloc: If . EOL
+
+    EOL  shift, and go to state 45
+
+
+state 23
+
+   29 If: Bif . Insts END
+   30   | Bif . Insts ELSE Insts END
+
+    TYPE   shift, and go to state 10
+    FOR    shift, and go to state 11
+    WHILE  shift, and go to state 12
+    IF     shift, and go to state 13
+    NAME   shift, and go to state 14
+
+    $default  reduce using rule 12 (Insts)
+
+    Insts       go to state 46
+    DefVarLine  go to state 16
+    SetLine     go to state 17
+    Set         go to state 18
+    CallLine    go to state 19
+    Call        go to state 20
+    Bloc        go to state 21
+    If          go to state 22
+    Bif         go to state 23
+    While       go to state 24
+    Bwhile      go to state 25
+    For         go to state 26
+    Bfor        go to state 27
+
+
+state 24
+
+   27 Bloc: While . EOL
+
+    EOL  shift, and go to state 47
+
+
+state 25
+
+   44 While: Bwhile . Insts END
+
+    TYPE   shift, and go to state 10
+    FOR    shift, and go to state 11
+    WHILE  shift, and go to state 12
+    IF     shift, and go to state 13
+    NAME   shift, and go to state 14
+
+    $default  reduce using rule 12 (Insts)
+
+    Insts       go to state 48
+    DefVarLine  go to state 16
+    SetLine     go to state 17
+    Set         go to state 18
+    CallLine    go to state 19
+    Call        go to state 20
+    Bloc        go to state 21
+    If          go to state 22
+    Bif         go to state 23
+    While       go to state 24
+    Bwhile      go to state 25
+    For         go to state 26
+    Bfor        go to state 27
+
+
+state 26
+
+   28 Bloc: For . EOL
+
+    EOL  shift, and go to state 49
+
+
+state 27
+
+   46 For: Bfor . Insts END
+
+    TYPE   shift, and go to state 10
+    FOR    shift, and go to state 11
+    WHILE  shift, and go to state 12
+    IF     shift, and go to state 13
+    NAME   shift, and go to state 14
+
+    $default  reduce using rule 12 (Insts)
+
+    Insts       go to state 50
+    DefVarLine  go to state 16
+    SetLine     go to state 17
+    Set         go to state 18
+    CallLine    go to state 19
+    Call        go to state 20
+    Bloc        go to state 21
+    If          go to state 22
+    Bif         go to state 23
+    While       go to state 24
+    Bwhile      go to state 25
+    For         go to state 26
+    Bfor        go to state 27
+
+
+state 28
+
+    7 Prot: TYPE NAME LP . RP EOL
+    8     | TYPE NAME LP . ListArg RP EOL
+
+    RP    shift, and go to state 51
+    TYPE  shift, and go to state 52
+
+    ListArg  go to state 53
+    Arg      go to state 54
+
+
+state 29
+
+    4 Leol: EOL Leol .
+
+    $default  reduce using rule 4 (Leol)
+
+
+state 30
+
+    2 Input: Function Leol END_OF_FILE .
+
+    $default  reduce using rule 2 (Input)
+
+
+state 31
+
+    3 Input: Function Leol Input .
+
+    $default  reduce using rule 3 (Input)
+
+
+state 32
+
+   17 DefVarLine: TYPE NAME . EOL
+   18           | TYPE NAME . SetLine
+
+    EOL   shift, and go to state 55
+    NAME  shift, and go to state 56
+
+    SetLine  go to state 57
+    Set      go to state 18
+
+
+state 33
+
+   47 Bfor: FOR LP . InstsList COLON CBool COLON InstsList RP EOL
+
+    NAME  shift, and go to state 14
+
+    $default  reduce using rule 48 (InstsList)
+
+    Set        go to state 58
+    Call       go to state 59
+    InstsList  go to state 60
+    IList      go to state 61
+
+
+state 34
+
+   45 Bwhile: WHILE LP . CBool RP EOL
+
+    LP    shift, and go to state 62
+    NOT   shift, and go to state 63
+    BOOL  shift, and go to state 64
+
+    $default  reduce using rule 32 (CBool)
+
+    CBool  go to state 65
+
+
+state 35
+
+   31 Bif: IF LP . CBool RP EOL
+
+    LP    shift, and go to state 62
+    NOT   shift, and go to state 63
+    BOOL  shift, and go to state 64
+
+    $default  reduce using rule 32 (CBool)
+
+    CBool  go to state 66
+
+
+state 36
+
+   22 Call: NAME LP . RP
+   23     | NAME LP . ListParam RP
+
+    RP    shift, and go to state 67
+    NAME  shift, and go to state 68
+
+    ListParam  go to state 69
+
+
+state 37
+
+   20 Set: NAME SET . Expr
+
+    LP     shift, and go to state 70
+    MINUS  shift, and go to state 71
+    TYPE   shift, and go to state 72
+    NAME   shift, and go to state 73
+
+    Call  go to state 74
+    Expr  go to state 75
+
+
+state 38
+
+    6 Function: Prot Insts END .
+
+    $default  reduce using rule 6 (Function)
+
+
+state 39
+
+   16 Insts: DefVarLine Insts .
+
+    $default  reduce using rule 16 (Insts)
+
+
+state 40
+
+   13 Insts: SetLine Insts .
+
+    $default  reduce using rule 13 (Insts)
+
+
+state 41
+
+   19 SetLine: Set EOL .
+
+    $default  reduce using rule 19 (SetLine)
+
+
+state 42
+
+   14 Insts: CallLine Insts .
+
+    $default  reduce using rule 14 (Insts)
+
+
+state 43
+
+   21 CallLine: Call EOL .
+
+    $default  reduce using rule 21 (CallLine)
+
+
+state 44
+
+   15 Insts: Bloc Insts .
+
+    $default  reduce using rule 15 (Insts)
+
+
+state 45
+
+   26 Bloc: If EOL .
+
+    $default  reduce using rule 26 (Bloc)
+
+
+state 46
+
+   29 If: Bif Insts . END
+   30   | Bif Insts . ELSE Insts END
+
+    END   shift, and go to state 76
+    ELSE  shift, and go to state 77
+
+
+state 47
+
+   27 Bloc: While EOL .
+
+    $default  reduce using rule 27 (Bloc)
+
+
+state 48
+
+   44 While: Bwhile Insts . END
+
+    END  shift, and go to state 78
+
+
+state 49
+
+   28 Bloc: For EOL .
+
+    $default  reduce using rule 28 (Bloc)
+
+
+state 50
+
+   46 For: Bfor Insts . END
+
+    END  shift, and go to state 79
+
+
+state 51
+
+    7 Prot: TYPE NAME LP RP . EOL
+
+    EOL  shift, and go to state 80
+
+
+state 52
+
+   11 Arg: TYPE . NAME
+
+    NAME  shift, and go to state 81
+
+
+state 53
+
+    8 Prot: TYPE NAME LP ListArg . RP EOL
+
+    RP  shift, and go to state 82
+
+
+state 54
+
+    9 ListArg: Arg .
+   10        | Arg . VIRGUL ListArg
+
+    VIRGUL  shift, and go to state 83
+
+    $default  reduce using rule 9 (ListArg)
+
+
+state 55
+
+   17 DefVarLine: TYPE NAME EOL .
+
+    $default  reduce using rule 17 (DefVarLine)
+
+
+state 56
+
+   20 Set: NAME . SET Expr
+
+    SET  shift, and go to state 37
+
+
+state 57
+
+   18 DefVarLine: TYPE NAME SetLine .
+
+    $default  reduce using rule 18 (DefVarLine)
+
+
+state 58
+
+   50 IList: Set . VIRGUL IList
+   52      | Set .
+
+    VIRGUL  shift, and go to state 84
+
+    $default  reduce using rule 52 (IList)
+
+
+state 59
+
+   51 IList: Call . VIRGUL IList
+   53      | Call .
+
+    VIRGUL  shift, and go to state 85
+
+    $default  reduce using rule 53 (IList)
+
+
+state 60
+
+   47 Bfor: FOR LP InstsList . COLON CBool COLON InstsList RP EOL
+
+    COLON  shift, and go to state 86
+
+
+state 61
+
+   49 InstsList: IList .
+
+    $default  reduce using rule 49 (InstsList)
+
+
+state 62
+
+   35 CBool: LP . CBool RP
+
+    LP    shift, and go to state 62
+    NOT   shift, and go to state 63
+    BOOL  shift, and go to state 64
+
+    $default  reduce using rule 32 (CBool)
+
+    CBool  go to state 87
+
+
+state 63
+
+   34 CBool: NOT . CBool
+
+    LP    shift, and go to state 62
+    NOT   shift, and go to state 63
+    BOOL  shift, and go to state 64
+
+    $default  reduce using rule 32 (CBool)
+
+    CBool  go to state 88
+
+
+state 64
+
+   33 CBool: BOOL .
+
+    $default  reduce using rule 33 (CBool)
+
+
+state 65
+
+   36 CBool: CBool . OR CBool
+   37      | CBool . AND CBool
+   38      | CBool . EQ CBool
+   39      | CBool . NE CBool
+   40      | CBool . GT CBool
+   41      | CBool . GE CBool
+   42      | CBool . LT CBool
+   43      | CBool . LE CBool
+   45 Bwhile: WHILE LP CBool . RP EOL
+
+    RP   shift, and go to state 89
+    EQ   shift, and go to state 90
+    GT   shift, and go to state 91
+    GE   shift, and go to state 92
+    LT   shift, and go to state 93
+    LE   shift, and go to state 94
+    NE   shift, and go to state 95
+    OR   shift, and go to state 96
+    AND  shift, and go to state 97
+
+
+state 66
+
+   31 Bif: IF LP CBool . RP EOL
+   36 CBool: CBool . OR CBool
+   37      | CBool . AND CBool
+   38      | CBool . EQ CBool
+   39      | CBool . NE CBool
+   40      | CBool . GT CBool
+   41      | CBool . GE CBool
+   42      | CBool . LT CBool
+   43      | CBool . LE CBool
+
+    RP   shift, and go to state 98
+    EQ   shift, and go to state 90
+    GT   shift, and go to state 91
+    GE   shift, and go to state 92
+    LT   shift, and go to state 93
+    LE   shift, and go to state 94
+    NE   shift, and go to state 95
+    OR   shift, and go to state 96
+    AND  shift, and go to state 97
+
+
+state 67
+
+   22 Call: NAME LP RP .
+
+    $default  reduce using rule 22 (Call)
+
+
+state 68
+
+   24 ListParam: NAME . VIRGUL ListParam
+   25          | NAME .
+
+    VIRGUL  shift, and go to state 99
+
+    $default  reduce using rule 25 (ListParam)
+
+
+state 69
+
+   23 Call: NAME LP ListParam . RP
+
+    RP  shift, and go to state 100
+
+
+state 70
+
+   64 Expr: LP . Expr RP
+
+    LP     shift, and go to state 70
+    MINUS  shift, and go to state 71
+    TYPE   shift, and go to state 72
+    NAME   shift, and go to state 73
+
+    Call  go to state 74
+    Expr  go to state 101
+
+
+state 71
+
+   62 Expr: MINUS . Expr
+
+    LP     shift, and go to state 70
+    MINUS  shift, and go to state 71
+    TYPE   shift, and go to state 72
+    NAME   shift, and go to state 73
+
+    Call  go to state 74
+    Expr  go to state 102
+
+
+state 72
+
+   54 Expr: TYPE .
+
+    $default  reduce using rule 54 (Expr)
+
+
+state 73
+
+   22 Call: NAME . LP RP
+   23     | NAME . LP ListParam RP
+   55 Expr: NAME .
+
+    LP  shift, and go to state 36
+
+    $default  reduce using rule 55 (Expr)
+
+
+state 74
+
+   56 Expr: Call .
+
+    $default  reduce using rule 56 (Expr)
+
+
+state 75
+
+   20 Set: NAME SET Expr .
+   57 Expr: Expr . PLUS Expr
+   58     | Expr . MINUS Expr
+   59     | Expr . MULT Expr
+   60     | Expr . DIV Expr
+   61     | Expr . MOD Expr
+   63     | Expr . POW Expr
+
+    PLUS   shift, and go to state 103
+    MINUS  shift, and go to state 104
+    MULT   shift, and go to state 105
+    DIV    shift, and go to state 106
+    MOD    shift, and go to state 107
+    POW    shift, and go to state 108
+
+    $default  reduce using rule 20 (Set)
+
+
+state 76
+
+   29 If: Bif Insts END .
+
+    $default  reduce using rule 29 (If)
+
+
+state 77
+
+   30 If: Bif Insts ELSE . Insts END
+
+    TYPE   shift, and go to state 10
+    FOR    shift, and go to state 11
+    WHILE  shift, and go to state 12
+    IF     shift, and go to state 13
+    NAME   shift, and go to state 14
+
+    $default  reduce using rule 12 (Insts)
+
+    Insts       go to state 109
+    DefVarLine  go to state 16
+    SetLine     go to state 17
+    Set         go to state 18
+    CallLine    go to state 19
+    Call        go to state 20
+    Bloc        go to state 21
+    If          go to state 22
+    Bif         go to state 23
+    While       go to state 24
+    Bwhile      go to state 25
+    For         go to state 26
+    Bfor        go to state 27
+
+
+state 78
+
+   44 While: Bwhile Insts END .
+
+    $default  reduce using rule 44 (While)
+
+
+state 79
+
+   46 For: Bfor Insts END .
+
+    $default  reduce using rule 46 (For)
+
+
+state 80
+
+    7 Prot: TYPE NAME LP RP EOL .
+
+    $default  reduce using rule 7 (Prot)
+
+
+state 81
+
+   11 Arg: TYPE NAME .
+
+    $default  reduce using rule 11 (Arg)
+
+
+state 82
+
+    8 Prot: TYPE NAME LP ListArg RP . EOL
+
+    EOL  shift, and go to state 110
+
+
+state 83
+
+   10 ListArg: Arg VIRGUL . ListArg
+
+    TYPE  shift, and go to state 52
+
+    ListArg  go to state 111
+    Arg      go to state 54
+
+
+state 84
+
+   50 IList: Set VIRGUL . IList
+
+    NAME  shift, and go to state 14
+
+    Set    go to state 58
+    Call   go to state 59
+    IList  go to state 112
+
+
+state 85
+
+   51 IList: Call VIRGUL . IList
+
+    NAME  shift, and go to state 14
+
+    Set    go to state 58
+    Call   go to state 59
+    IList  go to state 113
+
+
+state 86
+
+   47 Bfor: FOR LP InstsList COLON . CBool COLON InstsList RP EOL
+
+    LP    shift, and go to state 62
+    NOT   shift, and go to state 63
+    BOOL  shift, and go to state 64
+
+    $default  reduce using rule 32 (CBool)
+
+    CBool  go to state 114
+
+
+state 87
+
+   35 CBool: LP CBool . RP
+   36      | CBool . OR CBool
+   37      | CBool . AND CBool
+   38      | CBool . EQ CBool
+   39      | CBool . NE CBool
+   40      | CBool . GT CBool
+   41      | CBool . GE CBool
+   42      | CBool . LT CBool
+   43      | CBool . LE CBool
+
+    RP   shift, and go to state 115
+    EQ   shift, and go to state 90
+    GT   shift, and go to state 91
+    GE   shift, and go to state 92
+    LT   shift, and go to state 93
+    LE   shift, and go to state 94
+    NE   shift, and go to state 95
+    OR   shift, and go to state 96
+    AND  shift, and go to state 97
+
+
+state 88
+
+   34 CBool: NOT CBool .
+   36      | CBool . OR CBool
+   37      | CBool . AND CBool
+   38      | CBool . EQ CBool
+   39      | CBool . NE CBool
+   40      | CBool . GT CBool
+   41      | CBool . GE CBool
+   42      | CBool . LT CBool
+   43      | CBool . LE CBool
+
+    $default  reduce using rule 34 (CBool)
+
+
+state 89
+
+   45 Bwhile: WHILE LP CBool RP . EOL
+
+    EOL  shift, and go to state 116
+
+
+state 90
+
+   38 CBool: CBool EQ . CBool
+
+    LP    shift, and go to state 62
+    NOT   shift, and go to state 63
+    BOOL  shift, and go to state 64
+
+    $default  reduce using rule 32 (CBool)
+
+    CBool  go to state 117
+
+
+state 91
+
+   40 CBool: CBool GT . CBool
+
+    LP    shift, and go to state 62
+    NOT   shift, and go to state 63
+    BOOL  shift, and go to state 64
+
+    $default  reduce using rule 32 (CBool)
+
+    CBool  go to state 118
+
+
+state 92
+
+   41 CBool: CBool GE . CBool
+
+    LP    shift, and go to state 62
+    NOT   shift, and go to state 63
+    BOOL  shift, and go to state 64
+
+    $default  reduce using rule 32 (CBool)
+
+    CBool  go to state 119
+
+
+state 93
+
+   42 CBool: CBool LT . CBool
+
+    LP    shift, and go to state 62
+    NOT   shift, and go to state 63
+    BOOL  shift, and go to state 64
+
+    $default  reduce using rule 32 (CBool)
+
+    CBool  go to state 120
+
+
+state 94
+
+   43 CBool: CBool LE . CBool
+
+    LP    shift, and go to state 62
+    NOT   shift, and go to state 63
+    BOOL  shift, and go to state 64
+
+    $default  reduce using rule 32 (CBool)
+
+    CBool  go to state 121
+
+
+state 95
+
+   39 CBool: CBool NE . CBool
+
+    LP    shift, and go to state 62
+    NOT   shift, and go to state 63
+    BOOL  shift, and go to state 64
+
+    $default  reduce using rule 32 (CBool)
+
+    CBool  go to state 122
+
+
+state 96
+
+   36 CBool: CBool OR . CBool
+
+    LP    shift, and go to state 62
+    NOT   shift, and go to state 63
+    BOOL  shift, and go to state 64
+
+    $default  reduce using rule 32 (CBool)
+
+    CBool  go to state 123
+
+
+state 97
+
+   37 CBool: CBool AND . CBool
+
+    LP    shift, and go to state 62
+    NOT   shift, and go to state 63
+    BOOL  shift, and go to state 64
+
+    $default  reduce using rule 32 (CBool)
+
+    CBool  go to state 124
+
+
+state 98
+
+   31 Bif: IF LP CBool RP . EOL
+
+    EOL  shift, and go to state 125
+
+
+state 99
+
+   24 ListParam: NAME VIRGUL . ListParam
+
+    NAME  shift, and go to state 68
+
+    ListParam  go to state 126
+
+
+state 100
+
+   23 Call: NAME LP ListParam RP .
+
+    $default  reduce using rule 23 (Call)
+
+
+state 101
+
+   57 Expr: Expr . PLUS Expr
+   58     | Expr . MINUS Expr
+   59     | Expr . MULT Expr
+   60     | Expr . DIV Expr
+   61     | Expr . MOD Expr
+   63     | Expr . POW Expr
+   64     | LP Expr . RP
+
+    RP     shift, and go to state 127
+    PLUS   shift, and go to state 103
+    MINUS  shift, and go to state 104
+    MULT   shift, and go to state 105
+    DIV    shift, and go to state 106
+    MOD    shift, and go to state 107
+    POW    shift, and go to state 108
+
+
+state 102
+
+   57 Expr: Expr . PLUS Expr
+   58     | Expr . MINUS Expr
+   59     | Expr . MULT Expr
+   60     | Expr . DIV Expr
+   61     | Expr . MOD Expr
+   62     | MINUS Expr .
+   63     | Expr . POW Expr
+
+    POW  shift, and go to state 108
+
+    $default  reduce using rule 62 (Expr)
+
+
+state 103
+
+   57 Expr: Expr PLUS . Expr
+
+    LP     shift, and go to state 70
+    MINUS  shift, and go to state 71
+    TYPE   shift, and go to state 72
+    NAME   shift, and go to state 73
+
+    Call  go to state 74
+    Expr  go to state 128
+
+
+state 104
+
+   58 Expr: Expr MINUS . Expr
+
+    LP     shift, and go to state 70
+    MINUS  shift, and go to state 71
+    TYPE   shift, and go to state 72
+    NAME   shift, and go to state 73
+
+    Call  go to state 74
+    Expr  go to state 129
+
+
+state 105
+
+   59 Expr: Expr MULT . Expr
+
+    LP     shift, and go to state 70
+    MINUS  shift, and go to state 71
+    TYPE   shift, and go to state 72
+    NAME   shift, and go to state 73
+
+    Call  go to state 74
+    Expr  go to state 130
+
+
+state 106
+
+   60 Expr: Expr DIV . Expr
+
+    LP     shift, and go to state 70
+    MINUS  shift, and go to state 71
+    TYPE   shift, and go to state 72
+    NAME   shift, and go to state 73
+
+    Call  go to state 74
+    Expr  go to state 131
+
+
+state 107
+
+   61 Expr: Expr MOD . Expr
+
+    LP     shift, and go to state 70
+    MINUS  shift, and go to state 71
+    TYPE   shift, and go to state 72
+    NAME   shift, and go to state 73
+
+    Call  go to state 74
+    Expr  go to state 132
+
+
+state 108
+
+   63 Expr: Expr POW . Expr
+
+    LP     shift, and go to state 70
+    MINUS  shift, and go to state 71
+    TYPE   shift, and go to state 72
+    NAME   shift, and go to state 73
+
+    Call  go to state 74
+    Expr  go to state 133
+
+
+state 109
+
+   30 If: Bif Insts ELSE Insts . END
+
+    END  shift, and go to state 134
+
+
+state 110
+
+    8 Prot: TYPE NAME LP ListArg RP EOL .
+
+    $default  reduce using rule 8 (Prot)
+
+
+state 111
+
+   10 ListArg: Arg VIRGUL ListArg .
+
+    $default  reduce using rule 10 (ListArg)
+
+
+state 112
+
+   50 IList: Set VIRGUL IList .
+
+    $default  reduce using rule 50 (IList)
+
+
+state 113
+
+   51 IList: Call VIRGUL IList .
+
+    $default  reduce using rule 51 (IList)
+
+
+state 114
+
+   36 CBool: CBool . OR CBool
+   37      | CBool . AND CBool
+   38      | CBool . EQ CBool
+   39      | CBool . NE CBool
+   40      | CBool . GT CBool
+   41      | CBool . GE CBool
+   42      | CBool . LT CBool
+   43      | CBool . LE CBool
+   47 Bfor: FOR LP InstsList COLON CBool . COLON InstsList RP EOL
+
+    COLON  shift, and go to state 135
+    EQ     shift, and go to state 90
+    GT     shift, and go to state 91
+    GE     shift, and go to state 92
+    LT     shift, and go to state 93
+    LE     shift, and go to state 94
+    NE     shift, and go to state 95
+    OR     shift, and go to state 96
+    AND    shift, and go to state 97
+
+
+state 115
+
+   35 CBool: LP CBool RP .
+
+    $default  reduce using rule 35 (CBool)
+
+
+state 116
+
+   45 Bwhile: WHILE LP CBool RP EOL .
+
+    $default  reduce using rule 45 (Bwhile)
+
+
+state 117
+
+   36 CBool: CBool . OR CBool
+   37      | CBool . AND CBool
+   38      | CBool . EQ CBool
+   38      | CBool EQ CBool .
+   39      | CBool . NE CBool
+   40      | CBool . GT CBool
+   41      | CBool . GE CBool
+   42      | CBool . LT CBool
+   43      | CBool . LE CBool
+
+    GT  shift, and go to state 91
+    GE  shift, and go to state 92
+    LT  shift, and go to state 93
+    LE  shift, and go to state 94
+
+    $default  reduce using rule 38 (CBool)
+
+
+state 118
+
+   36 CBool: CBool . OR CBool
+   37      | CBool . AND CBool
+   38      | CBool . EQ CBool
+   39      | CBool . NE CBool
+   40      | CBool . GT CBool
+   40      | CBool GT CBool .
+   41      | CBool . GE CBool
+   42      | CBool . LT CBool
+   43      | CBool . LE CBool
+
+    $default  reduce using rule 40 (CBool)
+
+
+state 119
+
+   36 CBool: CBool . OR CBool
+   37      | CBool . AND CBool
+   38      | CBool . EQ CBool
+   39      | CBool . NE CBool
+   40      | CBool . GT CBool
+   41      | CBool . GE CBool
+   41      | CBool GE CBool .
+   42      | CBool . LT CBool
+   43      | CBool . LE CBool
+
+    $default  reduce using rule 41 (CBool)
+
+
+state 120
+
+   36 CBool: CBool . OR CBool
+   37      | CBool . AND CBool
+   38      | CBool . EQ CBool
+   39      | CBool . NE CBool
+   40      | CBool . GT CBool
+   41      | CBool . GE CBool
+   42      | CBool . LT CBool
+   42      | CBool LT CBool .
+   43      | CBool . LE CBool
+
+    $default  reduce using rule 42 (CBool)
+
+
+state 121
+
+   36 CBool: CBool . OR CBool
+   37      | CBool . AND CBool
+   38      | CBool . EQ CBool
+   39      | CBool . NE CBool
+   40      | CBool . GT CBool
+   41      | CBool . GE CBool
+   42      | CBool . LT CBool
+   43      | CBool . LE CBool
+   43      | CBool LE CBool .
+
+    $default  reduce using rule 43 (CBool)
+
+
+state 122
+
+   36 CBool: CBool . OR CBool
+   37      | CBool . AND CBool
+   38      | CBool . EQ CBool
+   39      | CBool . NE CBool
+   39      | CBool NE CBool .
+   40      | CBool . GT CBool
+   41      | CBool . GE CBool
+   42      | CBool . LT CBool
+   43      | CBool . LE CBool
+
+    GT  shift, and go to state 91
+    GE  shift, and go to state 92
+    LT  shift, and go to state 93
+    LE  shift, and go to state 94
+
+    $default  reduce using rule 39 (CBool)
+
+
+state 123
+
+   36 CBool: CBool . OR CBool
+   36      | CBool OR CBool .
+   37      | CBool . AND CBool
+   38      | CBool . EQ CBool
+   39      | CBool . NE CBool
+   40      | CBool . GT CBool
+   41      | CBool . GE CBool
+   42      | CBool . LT CBool
+   43      | CBool . LE CBool
+
+    EQ   shift, and go to state 90
+    GT   shift, and go to state 91
+    GE   shift, and go to state 92
+    LT   shift, and go to state 93
+    LE   shift, and go to state 94
+    NE   shift, and go to state 95
+    AND  shift, and go to state 97
+
+    $default  reduce using rule 36 (CBool)
+
+
+state 124
+
+   36 CBool: CBool . OR CBool
+   37      | CBool . AND CBool
+   37      | CBool AND CBool .
+   38      | CBool . EQ CBool
+   39      | CBool . NE CBool
+   40      | CBool . GT CBool
+   41      | CBool . GE CBool
+   42      | CBool . LT CBool
+   43      | CBool . LE CBool
+
+    EQ  shift, and go to state 90
+    GT  shift, and go to state 91
+    GE  shift, and go to state 92
+    LT  shift, and go to state 93
+    LE  shift, and go to state 94
+    NE  shift, and go to state 95
+
+    $default  reduce using rule 37 (CBool)
+
+
+state 125
+
+   31 Bif: IF LP CBool RP EOL .
+
+    $default  reduce using rule 31 (Bif)
+
+
+state 126
+
+   24 ListParam: NAME VIRGUL ListParam .
+
+    $default  reduce using rule 24 (ListParam)
+
+
+state 127
+
+   64 Expr: LP Expr RP .
+
+    $default  reduce using rule 64 (Expr)
+
+
+state 128
+
+   57 Expr: Expr . PLUS Expr
+   57     | Expr PLUS Expr .
+   58     | Expr . MINUS Expr
+   59     | Expr . MULT Expr
+   60     | Expr . DIV Expr
+   61     | Expr . MOD Expr
+   63     | Expr . POW Expr
+
+    MULT  shift, and go to state 105
+    DIV   shift, and go to state 106
+    MOD   shift, and go to state 107
+    POW   shift, and go to state 108
+
+    $default  reduce using rule 57 (Expr)
+
+
+state 129
+
+   57 Expr: Expr . PLUS Expr
+   58     | Expr . MINUS Expr
+   58     | Expr MINUS Expr .
+   59     | Expr . MULT Expr
+   60     | Expr . DIV Expr
+   61     | Expr . MOD Expr
+   63     | Expr . POW Expr
+
+    MULT  shift, and go to state 105
+    DIV   shift, and go to state 106
+    MOD   shift, and go to state 107
+    POW   shift, and go to state 108
+
+    $default  reduce using rule 58 (Expr)
+
+
+state 130
+
+   57 Expr: Expr . PLUS Expr
+   58     | Expr . MINUS Expr
+   59     | Expr . MULT Expr
+   59     | Expr MULT Expr .
+   60     | Expr . DIV Expr
+   61     | Expr . MOD Expr
+   63     | Expr . POW Expr
+
+    POW  shift, and go to state 108
+
+    $default  reduce using rule 59 (Expr)
+
+
+state 131
+
+   57 Expr: Expr . PLUS Expr
+   58     | Expr . MINUS Expr
+   59     | Expr . MULT Expr
+   60     | Expr . DIV Expr
+   60     | Expr DIV Expr .
+   61     | Expr . MOD Expr
+   63     | Expr . POW Expr
+
+    POW  shift, and go to state 108
+
+    $default  reduce using rule 60 (Expr)
+
+
+state 132
+
+   57 Expr: Expr . PLUS Expr
+   58     | Expr . MINUS Expr
+   59     | Expr . MULT Expr
+   60     | Expr . DIV Expr
+   61     | Expr . MOD Expr
+   61     | Expr MOD Expr .
+   63     | Expr . POW Expr
+
+    POW  shift, and go to state 108
+
+    $default  reduce using rule 61 (Expr)
+
+
+state 133
+
+   57 Expr: Expr . PLUS Expr
+   58     | Expr . MINUS Expr
+   59     | Expr . MULT Expr
+   60     | Expr . DIV Expr
+   61     | Expr . MOD Expr
+   63     | Expr . POW Expr
+   63     | Expr POW Expr .
+
+    POW  shift, and go to state 108
+
+    $default  reduce using rule 63 (Expr)
+
+
+state 134
+
+   30 If: Bif Insts ELSE Insts END .
+
+    $default  reduce using rule 30 (If)
+
+
+state 135
+
+   47 Bfor: FOR LP InstsList COLON CBool COLON . InstsList RP EOL
+
+    NAME  shift, and go to state 14
+
+    $default  reduce using rule 48 (InstsList)
+
+    Set        go to state 58
+    Call       go to state 59
+    InstsList  go to state 136
+    IList      go to state 61
+
+
+state 136
+
+   47 Bfor: FOR LP InstsList COLON CBool COLON InstsList . RP EOL
+
+    RP  shift, and go to state 137
+
+
+state 137
+
+   47 Bfor: FOR LP InstsList COLON CBool COLON InstsList RP . EOL
+
+    EOL  shift, and go to state 138
+
+
+state 138
+
+   47 Bfor: FOR LP InstsList COLON CBool COLON InstsList RP EOL .
+
+    $default  reduce using rule 47 (Bfor)
