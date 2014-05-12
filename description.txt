@@ -3,8 +3,8 @@ Le zoulbi-0.1 correspond à la réalisation du langage zoulbi version 0.1 qui in
 	- les boucles while et for
 	- la reconnaissance du type chaîne de caractère
 	- les affectations
-	- le calcul d'expression arithmétique
-	- l'évaluation d'expression booléenne
+	- le calcul d'expressions arithmétiques
+	- l'évaluation d'expressions booléennes
 	- l'affichage des valeurs des variables
 
 Notre parseur doit générer un arbre représentant l'ensemble des instructions d'un code source
@@ -53,6 +53,6 @@ end
 	
 Il gère trois types: real, bool et str. 
 Tous les blocs se finissent par le mot clé "end".
-Il n'y a qu'une instruction par ligne et pas de point virgule en fin d'instruction.
+Il n'y a qu'une instruction par ligne et pas de point virgule en fin d'instructions.
 
  
