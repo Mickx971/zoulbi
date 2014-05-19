@@ -93,9 +93,9 @@ typedef enum NodeType {
 
 
 typedef enum Type {
-	BOOL 	= 	0,
-	REAL 	= 	1,
-	STRING 	= 	2 
+	T_BOOL = 	0,
+	T_REAL 	= 	1,
+	T_STRING 	= 	2 
 } Type ;
 
 
@@ -164,4 +164,6 @@ typedef struct children {
 	Node ** node 	;	
 
 } Children ;
+
+Node * createNode(int type);
 

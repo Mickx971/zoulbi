@@ -5,6 +5,7 @@
 	#include <math.h>
 	#include "makeTree.h"
 
+
 	extern int  yyparse();
 	extern FILE *yyin;
 
@@ -13,14 +14,14 @@
 
 	int yydebug = 1;
 
-	extern int  yyparse();
-	extern FILE *yyin;
-
 %}
 
 /*	
+
 	Union des types reconnus
-	par ce fichier bison.*/
+	par ce fichier bison.
+
+*/
 
 %union {
 	struct Node *node;
@@ -35,6 +36,10 @@
 /* Opérateurs arithmétiques */
 
 %token PLUS MINUS MULT DIV MOD
+
+/* Opérateur de concaténation */
+
+%token CONC
 
 /* Opérateurs d'affectations */
 
@@ -72,6 +77,10 @@
 
 %token NAME
 
+/* Return */
+
+%token RETURN
+
 /* --------------------- */
 /* Gestion des priorités */
 /* --------------------- */
@@ -84,6 +93,7 @@
 %left 	PLUS MINUS
 %left 	MULT DIV MOD
 %left 	NEG NOT
+%left 	CONC
 %right	POW
 
 %start Input
@@ -124,11 +134,17 @@ Insts:
 	| CallLine 	  Insts {}
 	| Bloc  	  Insts {}
 	| DefVarLine  Insts {}
+	| ReturnLine  Insts {}
+	;
+
+ReturnLine:
+	  RETURN EOL {}
+	| RETURN Expr EOL {}
 	;
 
 DefVarLine:
-	  TYPE NAME EOL     {}
-	| TYPE NAME SetLine {}	
+	  TYPE NAME EOL      	 {}
+	| TYPE NAME SET Expr EOL {}	
 	;
 
 SetLine:
@@ -165,21 +181,27 @@ If:
 	;
 
 Bif:
-	IF LP CBool RP EOL {}
+	  IF LP BoolExpr RP EOL {}
+	| IF LP Call 	 RP EOL {}
 	;
 
-CBool:
-	| BOOL 				{}
-	| NOT   CBool 	  	{}
-	| LP    CBool RP  	{}
-	| CBool OR    CBool {}
-	| CBool AND   CBool {}
-	| CBool EQ    CBool {}
-	| CBool NE    CBool {}
-	| CBool GT    CBool {}
-	| CBool GE    CBool {}
-	| CBool LT    CBool {}
-	| CBool LE    CBool {}
+BoolExpr:
+	  BOOL 							 						 {}
+	| NOT   			BoolExprWirhCall 	  		 		 {}
+	| BoolExprWirhCall 	OR    				BoolExprWirhCall {}
+	| BoolExprWirhCall 	AND   				BoolExprWirhCall {}
+	| BoolExprWirhCall 	EQ    				BoolExprWirhCall {}
+	| BoolExprWirhCall 	NE    				BoolExprWirhCall {}
+	| BoolExprWirhCall 	GT    				BoolExprWirhCall {}
+	| BoolExprWirhCall 	GE    				BoolExprWirhCall {}
+	| BoolExprWirhCall 	LT    				BoolExprWirhCall {}
+	| BoolExprWirhCall 	LE    				BoolExprWirhCall {}
+	;
+
+BoolExprWirhCall:
+	  Call {}
+	| BoolExpr {}
+	| LP BoolExpr RP {}
 	;
 
 While:
@@ -187,7 +209,8 @@ While:
 	;
 
 Bwhile:
-	WHILE LP CBool RP EOL {}
+	  WHILE LP BoolExpr RP EOL {}
+	| WHILE LP Call 	RP EOL {}
 	;
 
 
@@ -196,7 +219,8 @@ For:
 	;
 
 Bfor:
-	FOR LP InstsList COLON CBool COLON InstsList RP EOL {}
+	  FOR LP InstsList COLON BoolExpr COLON InstsList RP EOL {}
+	| FOR LP InstsList COLON Call 	  COLON InstsList RP EOL {}
 	;
 
 InstsList:
@@ -207,47 +231,72 @@ InstsList:
 IList:
 	  Set VIRGUL IList  {}
 	| Call VIRGUL IList {}
-	| Set 		  {}
-	| Call 		  {} 
+	| Set 		  		{}
+	| Call 		  		{} 
 	;
 
 Expr:
-    TYPE		       			{}
-  | NAME 			   			{}
-  | Call 			   			{}
-  | Expr 	PLUS 	Expr     	{}
-  | Expr 	MINUS  	Expr     	{}
-  | Expr	MULT 	Expr     	{}
-  | Expr 	DIV  	Expr     	{}
-  | Expr 	MOD  	Expr     	{}
-  | MINUS  	Expr 	%prec NEG	{}
-  | Expr 	POW  	Expr     	{}
-  | LP   	Expr 	RP 	   		{}
+	  ArthExpr  {}
+	| BoolExpr  {}
+	| Conc 	 	{}
+	| Call		{} 
+	;
+
+ArthExpr:
+    REAL		       											{}
+  | NAME 			   											{}
+  | ArthExprWithCall 	PLUS 				ArthExprWithCall    {}
+  | ArthExprWithCall 	MINUS  				ArthExprWithCall    {}
+  | ArthExprWithCall	MULT 				ArthExprWithCall    {}
+  | ArthExprWithCall 	DIV  				ArthExprWithCall    {}
+  | ArthExprWithCall 	MOD  				ArthExprWithCall    {}
+  | MINUS  				ArthExprWithCall 	%prec NEG			{}
+  | ArthExprWithCall 	POW  				ArthExprWithCall    {}
   ;
+
+ArthExprWithCall:
+	  Call {}
+	| ArthExpr {}
+	| LP ArthExpr RP {}
+
+
+Conc:
+	STRING 		      			   {}	
+  |	ConcWithCall CONC ConcWithCall {}
+  ;
+
+
+ConcWithCall:
+	  Call {}
+	| Conc {}
+
+
 
 
 %%
 
-void yyerror(char * s) {
-	
+void yyerror( char * s ) {
+	printf( "%s\n" , s );
 }
 
-int main(int argc, char **argv) {
-  	if ((argc == 3) && (strcmp(argv[1], "-f") == 0)) {
+int main( int argc, char **argv ) {
+  	
+  	if ( ( argc == 3 ) && ( strcmp( argv[1], "-f" ) == 0 ) ) {
     
       	FILE * fp = fopen( argv[2], "r" );
-      	if(!fp) {
-        	printf("Impossible d'ouvrir le fichier à executer.\n");
-          	exit(0);
+      	
+      	if( !fp ) {
+        	printf( "Impossible d'ouvrir le fichier à executer.\n" );
+          	exit( 0 );
       	}
 
-      	yyin=fp;
+      	yyin = fp;
 
-      	if(yyparse() == 1) {
-        	printf("Echec du parsing\n");
-      	}
+      	if( yyparse() == 1 )
+        	printf( "Echec du parsing\n" );
   
-    	fclose(fp);
+    	fclose( fp );
 	}
-	exit(0);
+	
+	exit( 0 );
 }

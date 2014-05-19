@@ -3,6 +3,7 @@
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include "makeTree.h"
+	#include "zoulbi.h"
 %}
 
 empty   [ \t]+
@@ -39,121 +40,120 @@ string	\"[^\"]*\"
 
 
 "." 	{
-	yyval.node = createNode(NT_CONC);
+	yylval.node = createNode(NT_CONC);
 	return(CONC);
 }
 
 "+"		{ 
-	yyval.node = createNode(NT_PLUS);
+	yylval.node = createNode(NT_PLUS);
 	return(PLUS);
 }
 
 "-"		{ 
-	yyval.node = createNode(NT_MINUS);
+	yylval.node = createNode(NT_MINUS);
 	return(MINUS);
 }
 
 "*"		{ 
-	yyval.node = createNode(NT_MULT);
+	yylval.node = createNode(NT_MULT);
 	return(MULT);
 }
 
 "/"		{ 
-	yyval.node = createNode(NT_DIV);
+	yylval.node = createNode(NT_DIV);
 	return(DIV);
 }
 
 "%"		{ 
-	yyval.node = createNode(NT_MOD);
+	yylval.node = createNode(NT_MOD);
 	return(MOD);
 }
 
 "^" 	{
-	yyval.node = createNode(NT_POW);
+	yylval.node = createNode(NT_POW);
 	return(POW);
 }
 
 
 "="		{
-	yyval.node = createNode(NT_SET);
+	yylval.node = createNode(NT_SET);
 	return(SET);
 }
 
 
 "=="	{
-	yyval.node = createNode(NT_EQ);
+	yylval.node = createNode(NT_EQ);
 	return(EQ);
 }
 
 ">"		{
-	yyval.node = createNode(NT_GT);
+	yylval.node = createNode(NT_GT);
 	return(GT);
 }
 
 "<"		{
-	yyval.node = createNode(NT_LT);
+	yylval.node = createNode(NT_LT);
 	return(LT);
 }
 
 ">="	{
-	yyval.node = createNode(NT_GE);
+	yylval.node = createNode(NT_GE);
 	return(GE);
 }
 
 "<="	{
-	yyval.node = createNode(NT_LE);
+	yylval.node = createNode(NT_LE);
 	return(LE);
 }
 
 "!="	{
-	yyval.node = createNode(NT_NE);
+	yylval.node = createNode(NT_NE);
 	return(NE);
 }
 
 
 "!"		{
-	yyval.node = createNode(NT_NOT);
+	yylval.node = createNode(NT_NOT);
 	return(NOT);
 }
 
 "or"	{
-	yyval.node = createNode(NT_OR);
+	yylval.node = createNode(NT_OR);
 	return(OR);
 }
 
 "and"	{
-	yyval.node = createNode(NT_AND);
+	yylval.node = createNode(NT_AND);
 	return(AND);
 }
 
 
 
-("real"|"bool"|"string") { 
-	yyval.node = createNode(NT_DEC);
-	yyval.string = yytext;
+("real"|"bool"|"string"|"void") { 
+	yylval.node = createNode(NT_DEC);
+	yylval.node->string = yytext;
 	return(TYPE); 
-	// Vérifier la declaration de variables/fonctions
 }
 
 
 "for"	{
-	yyval.node = createNode(NT_FOR);
+	yylval.node = createNode(NT_FOR);
 	return(FOR);
 }
 
 "while"	{
-	yyval.node = createNode(NT_WHILE);
+	yylval.node = createNode(NT_WHILE);
 	return(WHILE);
 }
 
 
 "if"	{
-	yyval.node = createNode(NT_IF);
+	yylval.node = createNode(NT_IF);
 	return(IF);
 }
 
 "else" {
-	yyval.node = createNode(NT_ELSE);
+	yylval.node = createNode(NT_ELSE);
 	return(ELSE); 
 }
 
@@ -161,9 +161,9 @@ string	\"[^\"]*\"
 
 ("true"|"false") 	{
 	
-	yyval.node = createNode(NT_BOOL);
+	yylval.node = createNode(NT_BOOL);
 	
-	if( yytext == 't' )
+	if( *yytext == 't' )
 		yylval.node->boolean = 1;
 	else
 		yylval.node->boolean = 0;
@@ -172,7 +172,7 @@ string	\"[^\"]*\"
 }
 
 "return" {
-	yyval.node = createNode(NT_RETURN);
+	yylval.node = createNode(NT_RETURN);
 	return(RETURN);
 }
 
@@ -185,15 +185,13 @@ string	\"[^\"]*\"
 
 {string}	{
 	yylval.node = createNode(NT_STRING);
-	yyval.node->string = yytext;
+	yylval.node->string = yytext;
 	return(STRING);
 }
 
 
 
 {name}	{
-	yyval.str = yytext;
+	yylval.str = yytext;
 	return(NAME);
 }
-
-%%
