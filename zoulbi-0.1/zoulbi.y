@@ -20,13 +20,12 @@
 
 /*	
 	Union des types reconnus
-	par ce fichier bison.
+	par ce fichier bison.*/
 
 %union {
 	struct Node *node;
+	char * str;
 }
-
-*/
 
 /* délimiteurs */
 
