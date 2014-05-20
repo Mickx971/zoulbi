@@ -1,1 +1,5 @@
 .DS_store
+in.txt
+out.txt
+zoulbi.output
+.gitignore

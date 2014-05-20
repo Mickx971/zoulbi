@@ -24,7 +24,6 @@ string	\"[^\"]*\"
 
 
 
-<<EOF>>	{ return(END_OF_FILE); }
 
 "\n"	{ return(EOL); 	  }
 

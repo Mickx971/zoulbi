@@ -24,62 +24,93 @@
 */
 
 %union {
-	struct Node *node;
-	char * str;
+	Node *   node ;
+	char *   str  ;
+	Function func ;
 }
 
 /* délimiteurs */
 
-%token END_OF_FILE EOL
+%token EOL
 %token LP RP VIRGUL COLON
+%token END 	// fin de blocs
 
 /* Opérateurs arithmétiques */
 
-%token PLUS MINUS MULT DIV MOD
+%token <node> PLUS MINUS MULT DIV MOD POW
 
 /* Opérateur de concaténation */
 
-%token CONC
+%token <node> CONC
 
 /* Opérateurs d'affectations */
 
-%token SET
+%token <node> SET
 
 /* Opérateurs de comparaison */
 
-%token EQ GT GE LT LE NE
+%token <node> EQ GT GE LT LE NE
 
 /* Opérateurs logiques */
 
-%token NOT OR AND
-
-/* Structure de bloc */
-
-%token END
+%token <node> NOT OR AND
 
 /* Types */
 
-%token TYPE
+%token <node> TYPE
 
 /* Structures de répétition */
 
-%token FOR WHILE
+%token <node> FOR WHILE
 
 /* Structure de controle */
 
-%token IF ELSE
+%token <node> IF ELSE
 
 /* Valeurs typés */
 
-%token BOOL REAL STRING
+%token <node> BOOL REAL STRING
 
 /* Identificateur */
 
-%token NAME
+%token <str> NAME
 
 /* Return */
 
-%token RETURN
+%token <node> RETURN
+
+/***************************************************/
+/* Déclaration des types des noeuds intermédiaires */
+/***************************************************/
+
+%type 	<node>		 Input
+%type 	<node>	 	 Function
+%type 	<node>	 	 Prot
+%type 	<node>	 	 ListArg
+%type 	<node>	 	 Arg
+%type 	<node>	 	 Insts
+%type 	<node>	 	 ReturnLine
+%type 	<node>	 	 DefVarLine
+%type 	<node>	 	 SetLine
+%type 	<node>	 	 Set
+%type 	<node>	 	 CallLine
+%type 	<node>	 	 Call
+%type 	<node>	 	 ListParam
+%type 	<node>	 	 Bloc
+%type 	<node>	 	 If
+%type 	<node>	 	 Bif
+%type 	<node>	 	 BoolExpr
+%type 	<node>	 	 While
+%type 	<node>	 	 Bwhile
+%type 	<node>	 	 For
+%type 	<node>	 	 Bfor
+%type 	<node>	 	 InstsList
+%type 	<node>	 	 IList
+%type 	<node>	 	 Expr
+%type 	<node>	 	 ArthExpr
+%type 	<node>	 	 ArthExprWithInvoke
+%type 	<node>	 	 Conc
+%type 	<node>	 	 ConcWithCall
 
 /* --------------------- */
 /* Gestion des priorités */
@@ -100,9 +131,9 @@
 %%
 
 Input:
-	  Function END_OF_FILE		{}
-	| Function Leol END_OF_FILE {}
-	| Function Leol Input 		{}
+							{}	
+	| Function 				{}
+	| Function Leol Input 	{}
 	;
 
 Leol:
@@ -111,7 +142,7 @@ Leol:
 	;
 
 Function:
-	Prot Insts END 	{}
+	Prot Content END {}
 	;
 
 Prot:
@@ -128,13 +159,27 @@ Arg:
 	TYPE NAME {}
 	;
 
-Insts:
+Content:
+	  LeolOrNull {}
+	| LeolOrNull Insts {}
+	;
+
+LeolOrNull:
 	  {}
-	| SetLine  	  Insts {}
-	| CallLine 	  Insts {}
-	| Bloc  	  Insts {}
-	| DefVarLine  Insts {}
-	| ReturnLine  Insts {}
+	| Leol {}
+	;
+
+Insts:
+	  Inst LeolOrNull {}
+	| Inst LeolOrNull Insts {}
+	;
+	
+Inst:
+	  SetLine     {}
+	| CallLine 	  {}
+	| DefVarLine  {}
+	| Bloc 		  {}
+	| ReturnLine  {}
 	;
 
 ReturnLine:
@@ -165,8 +210,8 @@ Call:
 	;
 
 ListParam:
-	  NAME VIRGUL ListParam {}
-	| NAME
+	  Expr VIRGUL ListParam {}
+	| Expr {}
 	;
 
 Bloc:
@@ -176,51 +221,76 @@ Bloc:
 	;
 
 If:
-	  Bif Insts END {}
-	| Bif Insts ELSE Insts END {}
+	  Bif Content END {}
+	| Bif Content ELSE Content END {}
 	;
 
 Bif:
 	  IF LP BoolExpr RP EOL {}
-	| IF LP Call 	 RP EOL {}
+	| IF LP Invoke 	 RP EOL {}
 	;
 
 BoolExpr:
-	  BOOL 							 						 {}
-	| NOT   			BoolExprWirhCall 	  		 		 {}
-	| BoolExprWirhCall 	OR    				BoolExprWirhCall {}
-	| BoolExprWirhCall 	AND   				BoolExprWirhCall {}
-	| BoolExprWirhCall 	EQ    				BoolExprWirhCall {}
-	| BoolExprWirhCall 	NE    				BoolExprWirhCall {}
-	| BoolExprWirhCall 	GT    				BoolExprWirhCall {}
-	| BoolExprWirhCall 	GE    				BoolExprWirhCall {}
-	| BoolExprWirhCall 	LT    				BoolExprWirhCall {}
-	| BoolExprWirhCall 	LE    				BoolExprWirhCall {}
+	  BoolCondition 				 	  	  {}
+	| BoolExprStruct 						  {}
 	;
 
-BoolExprWirhCall:
-	  Call {}
-	| BoolExpr {}
-	| LP BoolExpr RP {}
+BoolExprStruct:		
+	  NOT  	LP		BoolExprMore 		RP    {}
+	| NOT   		BoolExprOne 			  {}
+	| BoolExprP 	OR    			BoolExprP {}
+	| BoolExprP 	AND   			BoolExprP {}
+	;
+
+BoolExprMore:
+	  BoolExprStruct {}
+	| BoolComp 		 {}
+
+BoolExprOne:
+	  Invoke {}
+	| BOOL 	 {}
+	;
+
+BoolExprInvoke:
+	  Invoke 	{}
+	| BoolExpr 	{}
+
+BoolExprP:
+	  LP BoolExpr RP 	{}
+	| BoolExprInvoke 	{}
+	;
+
+BoolCondition:
+	  BOOL 						{}
+	| BoolComp 					{}
+	;
+
+BoolComp:
+	  Expr 		EQ     Expr 	{}
+	| Expr 		NE     Expr 	{}
+	| ArthExpr 	GT     ArthExpr {}
+	| ArthExpr 	GE     ArthExpr {}
+	| ArthExpr 	LT     ArthExpr {}
+	| ArthExpr 	LE     ArthExpr {}
 	;
 
 While:
-	Bwhile Insts END {}
+	Bwhile Content END {}
 	;
 
 Bwhile:
 	  WHILE LP BoolExpr RP EOL {}
-	| WHILE LP Call 	RP EOL {}
+	| WHILE LP Invoke 	RP EOL {}
 	;
 
 
 For:
-	Bfor Insts END {}
+	Bfor Content END {}
 	;
 
 Bfor:
 	  FOR LP InstsList COLON BoolExpr COLON InstsList RP EOL {}
-	| FOR LP InstsList COLON Call 	  COLON InstsList RP EOL {}
+	| FOR LP InstsList COLON Invoke   COLON InstsList RP EOL {}
 	;
 
 InstsList:
@@ -239,24 +309,28 @@ Expr:
 	  ArthExpr  {}
 	| BoolExpr  {}
 	| Conc 	 	{}
-	| Call		{} 
+	| Invoke 	{}
+	;
+
+Invoke:
+	  Call	{}
+	| NAME 	{}
 	;
 
 ArthExpr:
     REAL		       											{}
-  | NAME 			   											{}
-  | ArthExprWithCall 	PLUS 				ArthExprWithCall    {}
-  | ArthExprWithCall 	MINUS  				ArthExprWithCall    {}
-  | ArthExprWithCall	MULT 				ArthExprWithCall    {}
-  | ArthExprWithCall 	DIV  				ArthExprWithCall    {}
-  | ArthExprWithCall 	MOD  				ArthExprWithCall    {}
-  | MINUS  				ArthExprWithCall 	%prec NEG			{}
-  | ArthExprWithCall 	POW  				ArthExprWithCall    {}
+  | ArthExprWithInvoke 	PLUS 				ArthExprWithInvoke  {}
+  | ArthExprWithInvoke 	MINUS  				ArthExprWithInvoke  {}
+  | ArthExprWithInvoke	MULT 				ArthExprWithInvoke  {}
+  | ArthExprWithInvoke 	DIV  				ArthExprWithInvoke  {}
+  | ArthExprWithInvoke 	MOD  				ArthExprWithInvoke  {}
+  | MINUS  				ArthExprWithInvoke 	%prec NEG			{}
+  | ArthExprWithInvoke 	POW  				ArthExprWithInvoke  {}
   ;
 
-ArthExprWithCall:
-	  Call {}
-	| ArthExpr {}
+ArthExprWithInvoke:
+	  Invoke 		 {}
+	| ArthExpr 		 {}
 	| LP ArthExpr RP {}
 
 
@@ -267,11 +341,9 @@ Conc:
 
 
 ConcWithCall:
-	  Call {}
+	  Invoke {}
 	| Conc {}
-
-
-
+	;
 
 %%
 
@@ -280,11 +352,12 @@ void yyerror( char * s ) {
 }
 
 int main( int argc, char **argv ) {
-  	
+
   	if ( ( argc == 3 ) && ( strcmp( argv[1], "-f" ) == 0 ) ) {
     
+
       	FILE * fp = fopen( argv[2], "r" );
-      	
+
       	if( !fp ) {
         	printf( "Impossible d'ouvrir le fichier à executer.\n" );
           	exit( 0 );
