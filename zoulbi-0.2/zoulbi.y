@@ -83,34 +83,6 @@
 /* Déclaration des types des noeuds intermédiaires */
 /***************************************************/
 
-%type 	<node>		 Input
-%type 	<node>	 	 Function
-%type 	<node>	 	 Prot
-%type 	<node>	 	 ListArg
-%type 	<node>	 	 Arg
-%type 	<node>	 	 Insts
-%type 	<node>	 	 ReturnLine
-%type 	<node>	 	 DefVarLine
-%type 	<node>	 	 SetLine
-%type 	<node>	 	 Set
-%type 	<node>	 	 CallLine
-%type 	<node>	 	 Call
-%type 	<node>	 	 ListParam
-%type 	<node>	 	 Bloc
-%type 	<node>	 	 If
-%type 	<node>	 	 Bif
-%type 	<node>	 	 BoolExpr
-%type 	<node>	 	 While
-%type 	<node>	 	 Bwhile
-%type 	<node>	 	 For
-%type 	<node>	 	 Bfor
-%type 	<node>	 	 InstsList
-%type 	<node>	 	 IList
-%type 	<node>	 	 Expr
-%type 	<node>	 	 ArthExpr
-%type 	<node>	 	 ArthExprWithInvoke
-%type 	<node>	 	 Conc
-%type 	<node>	 	 ConcWithCall
 
 /* --------------------- */
 /* Gestion des priorités */
@@ -231,47 +203,41 @@ Bif:
 	;
 
 BoolExpr:
-	  BoolCondition 				 	  	  {}
-	| BoolExprStruct 						  {}
+	  BOOL 				 	   {}
+	| BoolExprMore 			   {}
 	;
 
-BoolExprStruct:		
-	  NOT  	LP		BoolExprMore 		RP    {}
-	| NOT   		BoolExprOne 			  {}
-	| BoolExprP 	OR    			BoolExprP {}
-	| BoolExprP 	AND   			BoolExprP {}
-	;
-
-BoolExprMore:
-	  BoolExprStruct {}
-	| BoolComp 		 {}
-
-BoolExprOne:
-	  Invoke {}
-	| BOOL 	 {}
+BoolExprMore:  
+	  BoolCondition 		   {}
+	| NOT		BoolExprInvoke       {}
+	| BoolExprInvoke 	OR    BoolExprInvoke {}
+	| BoolExprInvoke 	AND   BoolExprInvoke {}
 	;
 
 BoolExprInvoke:
 	  Invoke 	{}
 	| BoolExpr 	{}
-
-BoolExprP:
-	  LP BoolExpr RP 	{}
-	| BoolExprInvoke 	{}
 	;
 
 BoolCondition:
-	  BOOL 						{}
-	| BoolComp 					{}
+	  EqualCondition 	{}
+	| ArthExpr 	GT    ArthExpr {}
+	| ArthExpr 	GE    ArthExpr {}
+	| ArthExpr 	LT    ArthExpr {}
+	| ArthExpr 	LE    ArthExpr {}
 	;
 
-BoolComp:
-	  Expr 		EQ     Expr 	{}
-	| Expr 		NE     Expr 	{}
-	| ArthExpr 	GT     ArthExpr {}
-	| ArthExpr 	GE     ArthExpr {}
-	| ArthExpr 	LT     ArthExpr {}
-	| ArthExpr 	LE     ArthExpr {}
+EqualCondition:
+	  Operand 			EQ 	  Operand 		 {}
+	| Operand 			NE 	  Operand 		 {}
+	;
+
+Operand:
+	  ArthExpr 			 {}
+	| Conc 	 			 {}
+	| Invoke 			 {}
+	| LP BoolExprMore RP {}
+	| BOOL 				 {}
 	;
 
 While:
@@ -318,31 +284,84 @@ Invoke:
 	;
 
 ArthExpr:
-    REAL		       											{}
-  | ArthExprWithInvoke 	PLUS 				ArthExprWithInvoke  {}
-  | ArthExprWithInvoke 	MINUS  				ArthExprWithInvoke  {}
-  | ArthExprWithInvoke	MULT 				ArthExprWithInvoke  {}
-  | ArthExprWithInvoke 	DIV  				ArthExprWithInvoke  {}
-  | ArthExprWithInvoke 	MOD  				ArthExprWithInvoke  {}
-  | MINUS  				ArthExprWithInvoke 	%prec NEG			{}
-  | ArthExprWithInvoke 	POW  				ArthExprWithInvoke  {}
-  ;
+  		REAL		{}			
+  	|	ArthExpr1 	{}
+  	|	ArthExpr2 	{}
+  	|	ArthExpr3 	{}
+  	|	ArthExpr4 	{}
+  	;
 
-ArthExprWithInvoke:
-	  Invoke 		 {}
-	| ArthExpr 		 {}
-	| LP ArthExpr RP {}
+ArthExpr1:
+		ArthExpr5	PLUS	ArthExpr5 {}
+	|	ArthExpr5	MINUS	ArthExpr5 {}
+	;
 
+ArthExpr2:
+		ArthExpr6	MULT	ArthExpr6 {}
+	|	ArthExpr6	MOD 	ArthExpr6 {}
+	|	ArthExpr6	DIV 	ArthExpr6 {}
+	;
+
+ArthExpr3:
+		MINUS ArthExpr7 %prec NEG {}
+	;
+
+ArthExpr4:
+		ArthExpr8 POW ArthExpr9	{}
+	;
+
+ArthExpr5:
+		ArthExpr	{}
+	|	Invoke		{}
+	;
+
+ArthExpr6:
+		ArthExpr2	{}
+	|	ArthExpr3	{}
+	|	ArthExpr10 	{}
+	;
+
+ArthExpr7:
+		LP ArthExpr3 RP	{}
+	|	ArthExpr10		{}
+	;
+
+ArthExpr8:
+		ArthExpr11		{}
+	|	LP ArthExpr3 RP	{}
+	;
+
+ArthExpr9:
+		ArthExpr11	{}
+	|	ArthExpr3	{}
+	;
+
+ArthExpr10:
+		ArthExpr12 		{}
+	| 	ArthExpr4 		{}
+	;
+
+ArthExpr11:
+		ArthExpr12		{}
+	|	LP ArthExpr4 RP	{}
+	;
+
+ArthExpr12:
+		Invoke			{}
+	|	BOOL			{}
+	|	LP ArthExpr1 RP	{}
+	|	LP ArthExpr2 RP	{}
+	;
 
 Conc:
-	STRING 		      			   {}	
-  |	ConcWithCall CONC ConcWithCall {}
-  ;
+		STRING 		      			   		{}	
+	|	ConcWithInvoke CONC ConcWithInvoke 	{}
+  	;
 
 
-ConcWithCall:
-	  Invoke {}
-	| Conc {}
+ConcWithInvoke:
+		Invoke {}
+	| 	Conc {}
 	;
 
 %%
