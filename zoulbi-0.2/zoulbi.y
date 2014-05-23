@@ -208,10 +208,10 @@ BoolExpr:
 	;
 
 BoolExprMore:  
-	  BoolCondition 		   {}
-	| NOT		BoolExprInvoke       {}
-	| BoolExprInvoke 	OR    BoolExprInvoke {}
-	| BoolExprInvoke 	AND   BoolExprInvoke {}
+	  BoolCondition 		   					{}
+	| NOT		BoolExprInvoke       			{}
+	| BoolExprInvoke 	OR    BoolExprInvoke 	{}
+	| BoolExprInvoke 	AND   BoolExprInvoke 	{}
 	;
 
 BoolExprInvoke:
@@ -228,16 +228,16 @@ BoolCondition:
 	;
 
 EqualCondition:
-	  Operand 			EQ 	  Operand 		 {}
-	| Operand 			NE 	  Operand 		 {}
+	 	Operand EQ Operand 	{}
+	| 	Operand NE Operand 	{}
 	;
 
 Operand:
-	  ArthExpr 			 {}
-	| Conc 	 			 {}
-	| Invoke 			 {}
-	| LP BoolExprMore RP {}
-	| BOOL 				 {}
+	  	ArthExpr 			{}
+	| 	Conc 	 			{}
+	| 	Invoke 			 	{}
+	| 	LP BoolExprMore RP 	{}
+	| 	BOOL 				{}
 	;
 
 While:
@@ -298,8 +298,8 @@ ArthExpr1:
 
 ArthExpr2:
 		ArthExpr6	MULT	ArthExpr6 {}
-	|	ArthExpr6	MOD 	ArthExpr6 {}
-	|	ArthExpr6	DIV 	ArthExpr6 {}
+	|	ArthExpr6	MOD		ArthExpr6 {}
+	|	ArthExpr6	DIV		ArthExpr6 {}
 	;
 
 ArthExpr3:
@@ -348,7 +348,7 @@ ArthExpr11:
 
 ArthExpr12:
 		Invoke			{}
-	|	BOOL			{}
+	|	REAL			{}
 	|	LP ArthExpr1 RP	{}
 	|	LP ArthExpr2 RP	{}
 	;
