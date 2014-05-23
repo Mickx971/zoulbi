@@ -83,6 +83,55 @@
 /* Déclaration des types des noeuds intermédiaires */
 /***************************************************/
 
+%type <node> Function
+%type <node> Prot
+%type <node> ListArgOrEmpty
+%type <node> ListArg
+%type <node> Arg
+%type <node> Content
+%type <node> LeolOrNull
+%type <node> Insts
+%type <node> Inst
+%type <node> ReturnLine
+%type <node> DefVarLine
+%type <node> SetLine
+%type <node> Set
+%type <node> CallLine
+%type <node> Call
+%type <node> ListParamOrEmpty
+%type <node> ListParam
+%type <node> Bloc
+%type <node> If
+%type <node> Bif
+%type <node> BoolExpr
+%type <node> BoolExprMore 
+%type <node> BoolExprInvoke
+%type <node> BoolCondition
+%type <node> EqualCondition
+%type <node> Operand
+%type <node> While
+%type <node> Bwhile
+%type <node> For
+%type <node> Bfor
+%type <node> InstsList
+%type <node> IList
+%type <node> Expr
+%type <node> Invoke
+%type <node> ArthExpr
+%type <node> ArthExpr1
+%type <node> ArthExpr2
+%type <node> ArthExpr3
+%type <node> ArthExpr4
+%type <node> ArthExprInvoke
+%type <node> ArthExpr6
+%type <node> ArthExpr7
+%type <node> ArthExpr8
+%type <node> ArthExpr9
+%type <node> ArthExpr10
+%type <node> ArthExpr11
+%type <node> ArthExpr12
+%type <node> Conc
+%type <node> ConcWithInvoke
 
 /* --------------------- */
 /* Gestion des priorités */
