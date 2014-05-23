@@ -104,127 +104,134 @@
 
 Input:
 							{}	
-	| Function 				{}
-	| Function Leol Input 	{}
+	| 	Function 			{}
+	| 	Function Leol Input {}
 	;
 
 Leol:
-	  EOL Leol 	{} 
-	| EOL 	 	{}
+	  	EOL Leol 	{} 
+	| 	EOL 	 	{}
 	;
 
 Function:
-	Prot Content END {}
+		Prot Content END {}
 	;
 
 Prot:
-	  TYPE NAME LP RP EOL {}
-	| TYPE NAME LP ListArg RP EOL {}
+	  	TYPE NAME LP ListArgOrEmpty RP EOL {}
+	;
+
+ListArgOrEmpty:
+		{}
+	| 	ListArg;
 	;
 
 ListArg:
-	  Arg {}
-	| Arg VIRGUL ListArg {}
+	  	Arg {}
+	| 	Arg VIRGUL ListArg {}
 	;
 
 Arg:
-	TYPE NAME {}
+		TYPE NAME {}
 	;
 
 Content:
-	  LeolOrNull {}
-	| LeolOrNull Insts {}
+	  	LeolOrNull {}
+	| 	LeolOrNull Insts {}
 	;
 
 LeolOrNull:
-	  {}
-	| Leol {}
+	  	{}
+	| 	Leol {}
 	;
 
 Insts:
-	  Inst LeolOrNull {}
-	| Inst LeolOrNull Insts {}
+	  	Inst LeolOrNull {}
+	| 	Inst LeolOrNull Insts {}
 	;
 	
 Inst:
-	  SetLine     {}
-	| CallLine 	  {}
-	| DefVarLine  {}
-	| Bloc 		  {}
-	| ReturnLine  {}
+	  	SetLine     {}
+	| 	CallLine 	{}
+	| 	DefVarLine  {}
+	| 	Bloc 		{}
+	| 	ReturnLine  {}
 	;
 
 ReturnLine:
-	  RETURN EOL {}
-	| RETURN Expr EOL {}
+	  	RETURN EOL {}
+	| 	RETURN Expr EOL {}
 	;
 
 DefVarLine:
-	  TYPE NAME EOL      	 {}
-	| TYPE NAME SET Expr EOL {}	
+	  	TYPE NAME EOL      	 	{}
+	| 	TYPE NAME SET Expr EOL 	{}	
 	;
 
 SetLine:
-	Set EOL {}
+		Set EOL {}
 	;
 
 Set:
-	NAME SET Expr {}
+		NAME SET Expr {}
 	;
 
 CallLine:
-	Call EOL {}
+		Call EOL {}
 	;
 
 Call:
-	  NAME LP RP {}
-	| NAME LP ListParam RP {}
+		NAME LP ListParamOrEmpty RP {}
+	;
+
+ListParamOrEmpty:
+		{}
+	| 	ListParam {}
 	;
 
 ListParam:
-	  Expr VIRGUL ListParam {}
-	| Expr {}
+	  	Expr VIRGUL ListParam {}
+	| 	Expr {}
 	;
 
 Bloc:
-	  If 	EOL {}
-	| While EOL {}
-	| For 	EOL {}
+	  	If 		EOL {}
+	| 	While 	EOL {}
+	| 	For 	EOL {}
 	;
 
 If:
-	  Bif Content END {}
-	| Bif Content ELSE Content END {}
+	  	Bif Content END {}
+	| 	Bif Content ELSE Content END {}
 	;
 
 Bif:
-	  IF LP BoolExpr RP EOL {}
-	| IF LP Invoke 	 RP EOL {}
+	  	IF LP BoolExprInvoke RP EOL {}
 	;
 
 BoolExpr:
-	  BOOL 				 	   {}
-	| BoolExprMore 			   {}
+	  	BOOL 			{}
+	| 	BoolExprMore 	{}
 	;
 
 BoolExprMore:  
-	  BoolCondition 		   					{}
-	| NOT		BoolExprInvoke       			{}
-	| BoolExprInvoke 	OR    BoolExprInvoke 	{}
-	| BoolExprInvoke 	AND   BoolExprInvoke 	{}
+	  	BoolCondition 		   					{}
+	| 	NOT		BoolExprInvoke       			{}
+	| 	BoolExprInvoke 	OR    BoolExprInvoke 	{}
+	| 	BoolExprInvoke 	AND   BoolExprInvoke 	{}
 	;
 
 BoolExprInvoke:
-	  Invoke 	{}
-	| BoolExpr 	{}
+	  	Invoke 		{}
+	| 	BoolExpr 	{}
 	;
 
 BoolCondition:
-	  EqualCondition 	{}
-	| ArthExpr 	GT    ArthExpr {}
-	| ArthExpr 	GE    ArthExpr {}
-	| ArthExpr 	LT    ArthExpr {}
-	| ArthExpr 	LE    ArthExpr {}
+	  	EqualCondition 		   	   {}
+	| 	ArthExpr 	GT    ArthExpr {}
+	| 	ArthExpr 	GE    ArthExpr {}
+	| 	ArthExpr 	LT    ArthExpr {}
+	| 	ArthExpr 	LE    ArthExpr {}
 	;
 
 EqualCondition:
@@ -241,46 +248,44 @@ Operand:
 	;
 
 While:
-	Bwhile Content END {}
+		Bwhile Content END {}
 	;
 
 Bwhile:
-	  WHILE LP BoolExpr RP EOL {}
-	| WHILE LP Invoke 	RP EOL {}
+		WHILE LP BoolExprInvoke RP EOL {}
 	;
 
 
 For:
-	Bfor Content END {}
+		Bfor Content END {}
 	;
 
 Bfor:
-	  FOR LP InstsList COLON BoolExpr COLON InstsList RP EOL {}
-	| FOR LP InstsList COLON Invoke   COLON InstsList RP EOL {}
+		FOR LP InstsList COLON BoolExprInvoke COLON InstsList RP EOL {}
 	;
 
 InstsList:
-	  {}
-	| IList {}
+	  	{}
+	| 	IList {}
 	;
 
 IList:
-	  Set VIRGUL IList  {}
-	| Call VIRGUL IList {}
-	| Set 		  		{}
-	| Call 		  		{} 
+	  	Set VIRGUL IList  	{}
+	| 	Call VIRGUL IList 	{}
+	| 	Set 		  		{}
+	| 	Call 		  		{} 
 	;
 
 Expr:
-	  ArthExpr  {}
-	| BoolExpr  {}
-	| Conc 	 	{}
-	| Invoke 	{}
+	  	ArthExpr  	{}
+	| 	BoolExpr  	{}
+	| 	Conc 	 	{}
+	| 	Invoke 		{}
 	;
 
 Invoke:
-	  Call	{}
-	| NAME 	{}
+	  	Call	{}
+	| 	NAME 	{}
 	;
 
 ArthExpr:
@@ -292,8 +297,8 @@ ArthExpr:
   	;
 
 ArthExpr1:
-		ArthExpr5	PLUS	ArthExpr5 {}
-	|	ArthExpr5	MINUS	ArthExpr5 {}
+		ArthExprInvoke	PLUS	ArthExprInvoke {}
+	|	ArthExprInvoke	MINUS	ArthExprInvoke {}
 	;
 
 ArthExpr2:
@@ -310,7 +315,7 @@ ArthExpr4:
 		ArthExpr8 POW ArthExpr9	{}
 	;
 
-ArthExpr5:
+ArthExprInvoke:
 		ArthExpr	{}
 	|	Invoke		{}
 	;
@@ -337,8 +342,8 @@ ArthExpr9:
 	;
 
 ArthExpr10:
-		ArthExpr12 		{}
-	| 	ArthExpr4 		{}
+		ArthExpr12 	{}
+	| 	ArthExpr4 	{}
 	;
 
 ArthExpr11:
