@@ -5,7 +5,6 @@
 	#include <math.h>
 	#include "makeTree.h"
 
-
 	extern int  yyparse();
 	extern FILE *yyin;
 
@@ -384,16 +383,19 @@ int main( int argc, char **argv ) {
 
       	if( !fp ) {
         	printf( "Impossible d'ouvrir le fichier à executer.\n" );
-          	exit( 0 );
+			return EXIT_FAILURE ;
       	}
 
       	yyin = fp;
 
-      	if( yyparse() == 1 )
+      	if( yyparse() == 1 ){
         	printf( "Echec du parsing\n" );
+    		fclose( fp );
+        	return EXIT_FAILURE ;
+      	}
   
     	fclose( fp );
 	}
 	
-	exit( 0 );
+	return EXIT_SUCCESS ;
 }
