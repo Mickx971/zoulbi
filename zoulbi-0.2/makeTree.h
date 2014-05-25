@@ -109,6 +109,8 @@ typedef struct Variable {
 	
 	char * var_name;
 	
+	Type type;
+	
 	union {
 		double 	val 	;
 		char * 	str 	;
