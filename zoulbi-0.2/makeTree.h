@@ -145,8 +145,8 @@ typedef struct Node {
 
 	Stack *  memory   ;
 
-	Children *  child ;
-	Node *  container ;
+	Children *  child 	  ;
+	Node 	 *  container ;
 
 } Node ;
 
@@ -155,7 +155,7 @@ typedef struct Function {
 
 	char * name	;
 	Type   type	;
-	Node * inst	;
+	Node * func	;
 
 } Function ;
 
