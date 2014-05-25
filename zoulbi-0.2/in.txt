@@ -1,0 +1,12 @@
+void main()
+	if (2 + 3 / (-(-3)) ^ (4 % 2 + a(coucou, "bonjour")) == 2 and true)
+		print("Bonjour")
+		while(coucou())
+			if(a)
+				print("a")
+			else
+				print("f")
+			end
+		end
+	end
+end
