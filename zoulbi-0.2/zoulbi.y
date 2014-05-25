@@ -1,38 +1,38 @@
 %{
-	#include <stdio.h>
-	#include <stdlib.h>
-	#include <string.h>
-	#include <math.h>
-	#include "makeTree.h"
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <string.h>
+    #include <math.h>
+    #include "makeTree.h"
 
-	extern int  yyparse();
-	extern FILE *yyin;
+    extern int  yyparse();
+    extern FILE *yyin;
 
-	void yyerror(char *);
-	int yylex();
+    void yyerror(char *);
+    int yylex();
 
-	int yydebug = 1;
+    int yydebug = 1;
 
 %}
 
-/*	
+/*  
 
-	Union des types reconnus
-	par ce fichier bison.
+    Union des types reconnus
+    par ce fichier bison.
 
 */
 
 %union {
-	Node *   node ;
-	char *   str  ;
-	Function func ;
+    Node *   node ;
+    char *   str  ;
+    Function func ;
 }
 
 /* délimiteurs */
 
 %token EOL
 %token LP RP VIRGUL COLON
-%token END 	// fin de blocs
+%token END  // fin de blocs
 
 /* Opérateurs arithmétiques */
 
@@ -136,315 +136,317 @@
 /* Gestion des priorités */
 /* --------------------- */
 
-%left	SET
-%left 	OR
-%left 	AND
-%left 	EQ NE
-%left 	GT LT GE LE
-%left 	PLUS MINUS
-%left 	MULT DIV MOD
-%left 	NEG NOT
-%left 	CONC
-%right	POW
+%left   SET
+%left   OR
+%left   AND
+%left   EQ NE
+%left   GT LT GE LE
+%left   PLUS MINUS
+%left   MULT DIV MOD
+%left   NEG NOT
+%left   CONC
+%right  POW
 
 %start Input
 %%
 
 Input:
-							{}	
-	| 	Function 			{}
-	| 	Function Leol Input {}
-	;
+                            {}  
+    |   Function            {}
+    |   Function Leol Input {}
+    ;
 
 Leol:
-	  	EOL Leol 	{} 
-	| 	EOL 	 	{}
-	;
+        EOL Leol    {} 
+    |   EOL         {}
+    ;
 
 Function:
-		Prot Content END {}
-	;
+        Prot Content END {}
+    ;
 
 Prot:
-	  	TYPE NAME LP ListArgOrEmpty RP EOL {}
-	;
+        TYPE NAME LP ListArgOrEmpty RP EOL {}
+    ;
 
 ListArgOrEmpty:
-		{}
-	| 	ListArg;
-	;
+        {}
+    |   ListArg {}
+    ;
 
 ListArg:
-	  	Arg {}
-	| 	Arg VIRGUL ListArg {}
-	;
+        Arg {}
+    |   Arg VIRGUL ListArg {}
+    ;
 
 Arg:
-		TYPE NAME {}
-	;
+        TYPE NAME {}
+    ;
 
 Content:
-	  	LeolOrNull {}
-	| 	LeolOrNull Insts {}
-	;
+        LeolOrNull {}
+    |   LeolOrNull Insts {}
+    ;
 
 LeolOrNull:
-	  	{}
-	| 	Leol {}
-	;
+        {}
+    |   Leol {}
+    ;
 
 Insts:
-	  	Inst LeolOrNull {}
-	| 	Inst LeolOrNull Insts {}
-	;
-	
+        Inst LeolOrNull {}
+    |   Inst LeolOrNull Insts {}
+    ;
+    
 Inst:
-	  	SetLine     {}
-	| 	CallLine 	{}
-	| 	DefVarLine  {}
-	| 	Bloc 		{}
-	| 	ReturnLine  {}
-	;
+        SetLine     {}
+    |   CallLine    {}
+    |   DefVarLine  {}
+    |   Bloc        {}
+    |   ReturnLine  {}
+    ;
 
 ReturnLine:
-	  	RETURN EOL {}
-	| 	RETURN Expr EOL {}
-	;
+        RETURN EOL {}
+    |   RETURN Expr EOL {}
+    ;
 
 DefVarLine:
-	  	TYPE NAME EOL      	 	{}
-	| 	TYPE NAME SET Expr EOL 	{}	
-	;
+        TYPE NAME EOL           {}
+    |   TYPE NAME SET Expr EOL  {}  
+    ;
 
 SetLine:
-		Set EOL {}
-	;
+        Set EOL {}
+    ;
 
 Set:
-		NAME SET Expr {}
-	;
+        NAME SET Expr {}
+    ;
 
 CallLine:
-		Call EOL {}
-	;
+        Call EOL {}
+    ;
 
 Call:
-		NAME LP ListParamOrEmpty RP {}
-	;
+        NAME LP ListParamOrEmpty RP {}
+    ;
 
 ListParamOrEmpty:
-		{}
-	| 	ListParam {}
-	;
+        {}
+    |   ListParam {}
+    ;
 
 ListParam:
-	  	Expr VIRGUL ListParam {}
-	| 	Expr {}
-	;
+        Expr VIRGUL ListParam {}
+    |   Expr {}
+    ;
 
 Bloc:
-	  	If 		EOL {}
-	| 	While 	EOL {}
-	| 	For 	EOL {}
-	;
+        If      EOL {}
+    |   While   EOL {}
+    |   For     EOL {}
+    ;
 
 If:
-	  	Bif Content END {}
-	| 	Bif Content ELSE Content END {}
-	;
+        Bif Content END {}
+    |   Bif Content ELSE Content END {}
+    ;
 
 Bif:
-	  	IF LP BoolExprInvoke RP EOL {}
-	;
+        IF LP BoolExprInvoke RP EOL {}
+    ;
 
 BoolExpr:
-	  	BOOL 			{}
-	| 	BoolExprMore 	{}
-	;
+        BOOL            {}
+    |   BoolExprMore    {}
+    ;
 
 BoolExprMore:  
-	  	BoolCondition 		   					{}
-	| 	NOT		BoolExprInvoke       			{}
-	| 	BoolExprInvoke 	OR    BoolExprInvoke 	{}
-	| 	BoolExprInvoke 	AND   BoolExprInvoke 	{}
-	;
+        BoolCondition                           {}
+    |   NOT     BoolExprInvoke                  {}
+    |   BoolExprInvoke  OR    BoolExprInvoke    {}
+    |   BoolExprInvoke  AND   BoolExprInvoke    {}
+    ;
 
 BoolExprInvoke:
-	  	Invoke 		{}
-	| 	BoolExpr 	{}
-	;
+        Invoke      {}
+    |   BoolExpr    {}
+    ;
 
 BoolCondition:
-	  	EqualCondition 		   	   {}
-	| 	ArthExpr 	GT    ArthExpr {}
-	| 	ArthExpr 	GE    ArthExpr {}
-	| 	ArthExpr 	LT    ArthExpr {}
-	| 	ArthExpr 	LE    ArthExpr {}
-	;
+        EqualCondition             {}
+    |   ArthExpr    GT    ArthExpr {}
+    |   ArthExpr    GE    ArthExpr {}
+    |   ArthExpr    LT    ArthExpr {}
+    |   ArthExpr    LE    ArthExpr {}
+    ;
 
 EqualCondition:
-	 	Operand EQ Operand 	{}
-	| 	Operand NE Operand 	{}
-	;
+        Operand EQ Operand  {}
+    |   Operand NE Operand  {}
+    ;
 
 Operand:
-	  	ArthExpr 			{}
-	| 	Conc 	 			{}
-	| 	Invoke 			 	{}
-	| 	LP BoolExprMore RP 	{}
-	| 	BOOL 				{}
-	;
+        ArthExpr            {}
+    |   Conc                {}
+    |   Invoke              {}
+    |   LP BoolExprMore RP  {}
+    |   BOOL                {}
+    ;
 
 While:
-		Bwhile Content END {}
-	;
+        Bwhile Content END {}
+    ;
 
 Bwhile:
-		WHILE LP BoolExprInvoke RP EOL {}
-	;
+        WHILE LP BoolExprInvoke RP EOL {}
+    ;
 
 
 For:
-		Bfor Content END {}
-	;
+        Bfor Content END {}
+    ;
 
 Bfor:
-		FOR LP InstsList COLON BoolExprInvoke COLON InstsList RP EOL {}
-	;
+        FOR LP InstsList COLON BoolExprInvoke COLON InstsList RP EOL {}
+    ;
 
 InstsList:
-	  	{}
-	| 	IList {}
-	;
+        {}
+    |   IList {}
+    ;
 
 IList:
-	  	Set VIRGUL IList  	{}
-	| 	Call VIRGUL IList 	{}
-	| 	Set 		  		{}
-	| 	Call 		  		{} 
-	;
+        Set VIRGUL IList    {}
+    |   Call VIRGUL IList   {}
+    |   Set                 {}
+    |   Call                {} 
+    ;
 
 Expr:
-	  	ArthExpr  	{}
-	| 	BoolExpr  	{}
-	| 	Conc 	 	{}
-	| 	Invoke 		{}
-	;
+        ArthExpr    {}
+    |   BoolExpr    {}
+    |   Conc        {}
+    |   Invoke      {}
+    ;
 
 Invoke:
-	  	Call	{}
-	| 	NAME 	{}
-	;
+        Call    {}
+    |   NAME    {}
+    ;
 
 ArthExpr:
-  		REAL		{}			
-  	|	ArthExpr1 	{}
-  	|	ArthExpr2 	{}
-  	|	ArthExpr3 	{}
-  	|	ArthExpr4 	{}
-  	;
+        REAL        {}          
+    |   ArthExpr1   {}
+    |   ArthExpr2   {}
+    |   ArthExpr3   {}
+    |   ArthExpr4   {}
+    ;
 
 ArthExpr1:
-		ArthExprInvoke	PLUS	ArthExprInvoke {}
-	|	ArthExprInvoke	MINUS	ArthExprInvoke {}
-	;
+        ArthExprInvoke  PLUS    ArthExprInvoke {}
+    |   ArthExprInvoke  MINUS   ArthExprInvoke {}
+    ;
 
 ArthExpr2:
-		ArthExpr6	MULT	ArthExpr6 {}
-	|	ArthExpr6	MOD		ArthExpr6 {}
-	|	ArthExpr6	DIV		ArthExpr6 {}
-	;
+        ArthExpr6   MULT    ArthExpr6 {}
+    |   ArthExpr6   MOD     ArthExpr6 {}
+    |   ArthExpr6   DIV     ArthExpr6 {}
+    ;
 
 ArthExpr3:
-		MINUS ArthExpr7 %prec NEG {}
-	;
+        MINUS ArthExpr7 %prec NEG {}
+    ;
 
 ArthExpr4:
-		ArthExpr8 POW ArthExpr9	{}
-	;
+        ArthExpr8 POW ArthExpr9 {}
+    ;
 
 ArthExprInvoke:
-		ArthExpr	{}
-	|	Invoke		{}
-	;
+        ArthExpr    {}
+    |   Invoke      {}
+    ;
 
 ArthExpr6:
-		ArthExpr2	{}
-	|	ArthExpr3	{}
-	|	ArthExpr10 	{}
-	;
+        ArthExpr2   {}
+    |   ArthExpr3   {}
+    |   ArthExpr10  {}
+    ;
 
 ArthExpr7:
-		LP ArthExpr3 RP	{}
-	|	ArthExpr10		{}
-	;
+        LP ArthExpr3 RP {}
+    |   ArthExpr10      {}
+    ;
 
 ArthExpr8:
-		ArthExpr11		{}
-	|	LP ArthExpr3 RP	{}
-	;
+        ArthExpr11      {}
+    |   LP ArthExpr3 RP {}
+    ;
 
 ArthExpr9:
-		ArthExpr11	{}
-	|	ArthExpr3	{}
-	;
+        ArthExpr11  {}
+    |   ArthExpr3   {}
+    ;
 
 ArthExpr10:
-		ArthExpr12 	{}
-	| 	ArthExpr4 	{}
-	;
+        ArthExpr12  {}
+    |   ArthExpr4   {}
+    ;
 
 ArthExpr11:
-		ArthExpr12		{}
-	|	LP ArthExpr4 RP	{}
-	;
+        ArthExpr12      {}
+    |   LP ArthExpr4 RP {}
+    ;
 
 ArthExpr12:
-		Invoke			{}
-	|	REAL			{}
-	|	LP ArthExpr1 RP	{}
-	|	LP ArthExpr2 RP	{}
-	;
+        Invoke          {}
+    |   REAL            {}
+    |   LP ArthExpr1 RP {}
+    |   LP ArthExpr2 RP {}
+    ;
 
 Conc:
-		STRING 		      			   		{}	
-	|	ConcWithInvoke CONC ConcWithInvoke 	{}
-  	;
+        STRING                              {}  
+    |   ConcWithInvoke CONC ConcWithInvoke  {}
+    ;
 
 
 ConcWithInvoke:
-		Invoke {}
-	| 	Conc {}
-	;
+        Invoke {}
+    |   Conc {}
+    ;
 
 %%
 
 void yyerror( char * s ) {
-	printf( "%s\n" , s );
+    printf( "%s\n" , s );
 }
 
 int main( int argc, char **argv ) {
 
-  	if ( ( argc == 3 ) && ( strcmp( argv[1], "-f" ) == 0 ) ) {
+    if ( ( argc == 3 ) && ( strcmp( argv[1], "-f" ) == 0 ) ) {
     
 
-      	FILE * fp = fopen( argv[2], "r" );
+        FILE * fp = fopen( argv[2], "r" );
 
-      	if( !fp ) {
-        	printf( "Impossible d'ouvrir le fichier à executer.\n" );
-			return EXIT_FAILURE ;
-      	}
+        if( !fp ) {
+            printf( "Impossible d'ouvrir le fichier à executer.\n" );
+            return EXIT_FAILURE ;
+        }
 
-      	yyin = fp;
+        yyin = fp;
 
-      	if( yyparse() == 1 ){
-        	printf( "Echec du parsing\n" );
-    		fclose( fp );
-        	return EXIT_FAILURE ;
-      	}
+        if( yyparse() == 1 ){
+            printf( "Echec du parsing\n" );
+            fclose( fp );
+            return EXIT_FAILURE ;
+        }
+        else
+            printf( "Fichier correct\n" );
   
-    	fclose( fp );
-	}
-	
-	return EXIT_SUCCESS ;
+        fclose( fp );
+    }
+    
+    return EXIT_SUCCESS ;
 }

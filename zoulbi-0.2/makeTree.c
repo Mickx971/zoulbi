@@ -4,26 +4,27 @@
 
 
 Node * createNode( int type ) {
-	
-	Node * n 	 = (Node*) malloc( sizeof( Node ) ) ;
-	n->type 	 = type;
-	n->children  = NULL;
-	n->container = NULL;
-	n->memory	 = NULL;
-	
-	return n;
+    
+    Node * n     = (Node*) malloc( sizeof( Node ) ) ;
+    n->type      = type ;
+    n->children  = NULL ;
+    n->container = NULL ;
+    n->memory    = NULL ;
+    
+    return n;
 }
 
 Node * nodeChildren( Node * father, Children * c ) { 
-	
-	father->children = (Node**) malloc( sizeof( Node * ) * c->length );
-	
-	int i;
-	
-	for(i = 0; i < c->length; i++)
-		father->children[i] = c->node[i];
+    
+    father->children = ( Children * ) malloc( sizeof( Children ) ) ;
+    father->children->child = ( Node ** ) malloc( sizeof( Node * ) * c->number ) ; 
+    
+    int i ;
+    
+    for( i = 0 ; i < c->number ; i++ )
+        father->children->child[ i ] = c->child[ i ] ;
 
-	return father;
+    return father ;
 }
 
 
