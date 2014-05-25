@@ -143,8 +143,8 @@ typedef struct Node {
 
 	Stack *  memory   ;
 
-	struct Node **  children ;
-	struct Node *  container ;
+	Node **  children ;
+	Node *  container ;
 
 } Node ;
 
