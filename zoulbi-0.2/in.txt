@@ -1,13 +1,6 @@
 void main()
-    if (2 + 3 / (-(-3)) ^ (4 % 2 + A(coucou, "bonjour")) == 2 and true)
+    if (true)
         print("Bonjour")
-        while(coucou())
-            if(A)
-                print("a")
-            else
-                print("f")
-            end
-        end
 
         real ab
 

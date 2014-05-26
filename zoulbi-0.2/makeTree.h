@@ -108,7 +108,7 @@ typedef enum bool {
 
 typedef struct Variable {
     
-    char * var_name ;
+    char * name ;
     
     Type type ;
     
@@ -121,12 +121,22 @@ typedef struct Variable {
 } Variable ;
 
 
+typedef struct Variables {
+
+    Variable ** v ;
+
+    int top ;
+
+} Variables;
+
+
 typedef struct Stack {
 
-    Variable ** stack   ;
-    int         pileTop ;
+    Variables * stack ;
+    int         top   ;
 
 } Stack ;
+
 
 typedef struct children {
     
@@ -134,6 +144,7 @@ typedef struct children {
     struct Node ** child  ;   
 
 } Children ;
+
 
 typedef struct Node {
 
@@ -159,6 +170,7 @@ typedef struct Node {
 
 } Node ;
 
+
 typedef struct Function {
 
     char * name ;
@@ -167,7 +179,12 @@ typedef struct Function {
 
 } Function ;
 
+
+
 Node * createNode( int ) ;
 Node * nodeChildren( Node * , Children * ) ;
 char * copyString( char * , int ) ;
+int  * searchVar( char * , Stack * ) ;
+void   logStatement( Stack * , char * , int ) ;
+void   freeBloc( Stack * ) ;
 

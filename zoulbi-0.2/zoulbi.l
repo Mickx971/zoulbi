@@ -271,30 +271,42 @@ string  \"[^\"]*\"
 
 
 
-"return" { 
+"return" {
+
     yylval.node = createNode( NT_RETURN ) ;
+
     return( RETURN ) ;
+
 }
 
 
 
 {real}  {
+
     yylval.node       = createNode( NT_REAL ) ;
     yylval.node->real = atof( yytext )  ;
+
     return( REAL ) ;
+
 }
 
 
 
 {string}    {
+
     yylval.node         = createNode( NT_STRING )      ;
     yylval.node->string = copyString( yytext + 1 , 1 ) ;
+
     return( STRING ) ;
+
 }
 
 
 
 {name}  {
+
     yylval.str = copyString( yytext , 0 ) ;
+    
     return( NAME ) ;
+
 }

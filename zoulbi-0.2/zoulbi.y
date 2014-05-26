@@ -5,13 +5,14 @@
     #include <math.h>
     #include "makeTree.h"
 
-    extern int  yyparse();
-    extern FILE *yyin;
+    extern int  yyparse() ;
+    extern FILE *yyin ;
 
-    void yyerror(char *);
-    int yylex();
+    void    yyerror(char *) ;
+    int     yylex()         ;
+    int     yydebug = 1     ;
 
-    int yydebug = 1;
+    Stack * memory ;
 
 %}
 
@@ -202,7 +203,16 @@ Inst:
         SetLine     {}
     |   CallLine    {}
     |   DefVarLine  {}
-    |   Bloc        {}
+    |   Bloc        {
+
+            /* Vidage de la pile mémoire du bloc */
+
+            freeBloc( memory ) ;
+
+            $$ = $1 ;
+
+        }
+
     |   ReturnLine  {}
     ;
 
@@ -220,16 +230,29 @@ DefVarLine:
 
             $$ = $1 ;
 
-            /* Notification de déclaration */
+            /* Vérification de la validité de la déclaration */
 
-            
+            if( searchVar( $2 , memory ) ) {
+
+                printf( "Déclaration multiple de la variable %s\n", $2 ) ;
+
+                free( $2 ) ;
+
+                return 1 ;
+
+            }
+
+            /* Enregistrement de la déclaration */
+
+            else
+                logStatement( memory , $2 , $$->typeVar ) ;
 
             /* ! Discuter du type void pour les variables ! */
 
         }
 
     |   TYPE NAME SET Expr EOL  {
-
+            
         }  
     ;
 
@@ -262,9 +285,17 @@ ListParam:
     ;
 
 Bloc:
-        If      EOL {}
-    |   While   EOL {}
-    |   For     EOL {}
+        If      EOL {
+
+        }
+
+    |   While   EOL {
+
+        }
+
+    |   For     EOL {
+            /* Ajout de pile mem */
+        }
     ;
 
 If:
@@ -459,6 +490,7 @@ Conc:
             $$ = nodeChildren( $2 , c );
 
             free( c ) ;
+
         }
     ;
 
@@ -487,6 +519,9 @@ int main( int argc, char **argv ) {
         }
 
         yyin = fp;
+
+        memory = ( Stack * ) calloc( 1 , sizeof( Stack ) ) ;
+        memory->top = -1 ;
 
         if( yyparse() == 1 ){
             printf( "Echec du parsing\n" );

@@ -42,6 +42,61 @@ char * copyString( char * s , int n ) {
 
 }
 
+int * searchVar( char * var , Stack * mem ) {
+
+    int i , j ;
+    int * indexs = NULL ;
+
+    if( mem->stack == NULL || mem->top == -1 ) return indexs;
+
+    for( i = mem->top ; i >= 0 ; i-- ) {
+
+        for( j = 0 ; j <= mem->stack[ i ].top; j++ ) {
+
+            if( strcmp( mem->stack[ i ].v[ j ]->name , var ) == 0 ) {
+
+                indexs = ( int * ) malloc( sizeof( int ) * 2 ) ;
+
+                indexs[0] = i ;
+                indexs[1] = j ;
+
+            }
+
+        }
+
+    }
+
+    return indexs ;
+}
+
+void logStatement( Stack * mem , char * name , int type) {
+
+    if( mem->stack == NULL ) {
+
+        mem->stack = ( Variables * ) malloc( sizeof( Variables ) ) ;
+        mem->top   = 0 ;
+
+    }
+
+    int i = ++ mem->stack[ mem->top ].top ;
+
+    mem->stack[ mem->top ].v            = ( Variable ** ) realloc( mem->stack[ mem->top ].v , sizeof( Variable * ) * i + 1 ) ;
+
+    mem->stack[ mem->top ].v[ i ]       = ( Variable * ) malloc( sizeof( Variable ) ) ;
+
+    mem->stack[ mem->top ].v[ i ]->name = copyString( name , 0 ) ;
+
+    mem->stack[ mem->top ].v[ i ]->type = type ;
+
+}
+
+
+void freeBloc( Stack * mem ) {
+
+
+
+}
+
 
 
 
