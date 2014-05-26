@@ -1,12 +1,17 @@
 void main()
-    if (2 + 3 / (-(-3)) ^ (4 % 2 + a(coucou, "bonjour")) == 2 and true)
+    if (2 + 3 / (-(-3)) ^ (4 % 2 + A(coucou, "bonjour")) == 2 and true)
         print("Bonjour")
         while(coucou())
-            if(a)
+            if(A)
                 print("a")
             else
                 print("f")
             end
         end
+
+        real ab
+
+        string b2 = "coucou"
+
     end
 end

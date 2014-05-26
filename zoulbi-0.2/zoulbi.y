@@ -212,8 +212,25 @@ ReturnLine:
     ;
 
 DefVarLine:
-        TYPE NAME EOL           {}
-    |   TYPE NAME SET Expr EOL  {}  
+        TYPE NAME EOL           {
+
+            /* Ajout du nom de la variable au noeud Déclaration */
+
+            $1->name = $2 ;
+
+            $$ = $1 ;
+
+            /* Notification de déclaration */
+
+            
+
+            /* ! Discuter du type void pour les variables ! */
+
+        }
+
+    |   TYPE NAME SET Expr EOL  {
+
+        }  
     ;
 
 SetLine:
@@ -229,7 +246,9 @@ CallLine:
     ;
 
 Call:
-        NAME LP ListParamOrEmpty RP {}
+        NAME LP ListParamOrEmpty RP {
+
+        }
     ;
 
 ListParamOrEmpty:
@@ -332,8 +351,19 @@ Expr:
     ;
 
 Invoke:
-        Call    {}
-    |   NAME    {}
+        Call    { $$ = $1 ; }
+
+    |   NAME    { 
+
+            if( 1 /* searchVariable( $1 ) */ )
+                ;
+            else {
+
+                printf( "Undefined variable: %s\n", $1 ) ;
+                return 1;
+            
+            }  
+        }
     ;
 
 ArthExpr:
@@ -390,31 +420,52 @@ ArthExpr9:
     ;
 
 ArthExpr10:
-        ArthExpr12  {}
-    |   ArthExpr4   {}
+        ArthExpr12  { $$ = $1 ; }
+    |   ArthExpr4   { $$ = $1 ; }
     ;
 
 ArthExpr11:
-        ArthExpr12      {}
-    |   LP ArthExpr4 RP {}
+        ArthExpr12      { $$ = $1 ; }
+    |   LP ArthExpr4 RP { $$ = $2 ; }
     ;
 
 ArthExpr12:
-        Invoke          {}
-    |   REAL            {}
-    |   LP ArthExpr1 RP {}
-    |   LP ArthExpr2 RP {}
+        Invoke          { $$ = $1 ; }
+    |   REAL            { $$ = $1 ; }
+    |   LP ArthExpr1 RP { $$ = $2 ; }
+    |   LP ArthExpr2 RP { $$ = $2 ; }
     ;
 
 Conc:
-        STRING                              {}  
-    |   ConcWithInvoke CONC ConcWithInvoke  {}
+        STRING                              {
+
+            /* Création du noeud string */
+
+            $$ = createNode( NT_STRING ) ;
+
+            $$->string = $1->string ;
+
+        }
+
+    |   ConcWithInvoke CONC ConcWithInvoke  {
+            
+            Children * c  = ( Children * ) malloc( sizeof( Children ) ) ;
+            c->child      = ( Node ** )    malloc( sizeof( Node * ) * 2 ) ;
+            c->number     =  2 ;
+
+            c->child[ 0 ] = $1 ;
+            c->child[ 1 ] = $3 ;
+
+            $$ = nodeChildren( $2 , c );
+
+            free( c ) ;
+        }
     ;
 
 
 ConcWithInvoke:
-        Invoke {}
-    |   Conc {}
+        Invoke  { $$ = $1 ; } //ici vérifier si la fonction ou variable appelée est de type string
+    |   Conc    { $$ = $1 ; }
     ;
 
 %%

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "makeTree.h"
 
 
@@ -25,6 +26,20 @@ Node * nodeChildren( Node * father, Children * c ) {
         father->children->child[ i ] = c->child[ i ] ;
 
     return father ;
+}
+
+char * copyString( char * s , int n ) {
+
+    int i = strlen( s ) ;
+
+    char * string = ( char * ) malloc( sizeof( char ) * ( i - n + 1 ) ) ;
+
+    strncpy( string , s , i - n ) ;
+
+    string[ i - n ] = '\0' ;
+
+    return string ;
+
 }
 
 

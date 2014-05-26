@@ -95,7 +95,8 @@ typedef enum NodeType {
 typedef enum Type {
     T_BOOL      =   0 ,
     T_REAL      =   1 ,
-    T_STRING    =   2 
+    T_STRING    =   2 ,
+    T_VOID      =   3
 } Type ;
 
 
@@ -149,6 +150,8 @@ typedef struct Node {
     
     bool     boolean  ;
 
+    Type     typeVar  ;
+
     Stack *  memory   ;
 
     Children    *  children  ;
@@ -164,5 +167,7 @@ typedef struct Function {
 
 } Function ;
 
-Node * createNode( int type );
+Node * createNode( int ) ;
+Node * nodeChildren( Node * , Children * ) ;
+char * copyString( char * , int ) ;
 
