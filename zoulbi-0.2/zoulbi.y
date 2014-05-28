@@ -24,9 +24,11 @@
 */
 
 %union {
-    Node *   node ;
-    char *   str  ;
-    Function func ;
+   
+    Node      *   node    ;
+    char      *   str     ;
+    Content   *   content ;
+
 }
 
 /* délimiteurs */
@@ -83,55 +85,56 @@
 /* Déclaration des types des noeuds intermédiaires */
 /***************************************************/
 
-%type <node> Function
-%type <node> Prot
-%type <node> ListArgOrEmpty
-%type <node> ListArg
-%type <node> Arg
-%type <node> Content
-%type <node> LeolOrNull
-%type <node> Insts
-%type <node> Inst
-%type <node> ReturnLine
-%type <node> DefVarLine
-%type <node> SetLine
-%type <node> Set
-%type <node> CallLine
-%type <node> Call
-%type <node> ListParamOrEmpty
-%type <node> ListParam
-%type <node> Bloc
-%type <node> If
-%type <node> Bif
-%type <node> BoolExpr
-%type <node> BoolExprMore 
-%type <node> BoolExprInvoke
-%type <node> BoolCondition
-%type <node> EqualCondition
-%type <node> Operand
-%type <node> While
-%type <node> Bwhile
-%type <node> For
-%type <node> Bfor
-%type <node> InstsList
-%type <node> IList
-%type <node> Expr
-%type <node> Invoke
-%type <node> ArthExpr
-%type <node> ArthExpr1
-%type <node> ArthExpr2
-%type <node> ArthExpr3
-%type <node> ArthExpr4
-%type <node> ArthExprInvoke
-%type <node> ArthExpr6
-%type <node> ArthExpr7
-%type <node> ArthExpr8
-%type <node> ArthExpr9
-%type <node> ArthExpr10
-%type <node> ArthExpr11
-%type <node> ArthExpr12
-%type <node> Conc
-%type <node> ConcWithInvoke
+%type <node>    Function
+%type <node>    Prot
+%type <node>    ListArgOrEmpty
+%type <node>    ListArg
+%type <node>    Arg
+%type <content> Content
+%type <content> FreeMemoryBloc
+%type <node>    LeolOrNull
+%type <node>    Insts
+%type <node>    Inst
+%type <node>    ReturnLine
+%type <node>    DefVarLine
+%type <node>    SetLine
+%type <node>    Set
+%type <node>    CallLine
+%type <node>    Call
+%type <node>    ListParamOrEmpty
+%type <node>    ListParam
+%type <node>    Bloc
+%type <node>    If
+%type <node>    Bif
+%type <node>    BoolExpr
+%type <node>    BoolExprMore 
+%type <node>    BoolExprInvoke
+%type <node>    BoolCondition
+%type <node>    EqualCondition
+%type <node>    Operand
+%type <node>    While
+%type <node>    Bwhile
+%type <node>    For
+%type <node>    Bfor
+%type <node>    InstsList
+%type <node>    IList
+%type <node>    Expr
+%type <node>    Invoke
+%type <node>    ArthExpr
+%type <node>    ArthExpr1
+%type <node>    ArthExpr2
+%type <node>    ArthExpr3
+%type <node>    ArthExpr4
+%type <node>    ArthExprInvoke
+%type <node>    ArthExpr6
+%type <node>    ArthExpr7
+%type <node>    ArthExpr8
+%type <node>    ArthExpr9
+%type <node>    ArthExpr10
+%type <node>    ArthExpr11
+%type <node>    ArthExpr12
+%type <node>    Conc
+%type <node>    ConcWithInvoke
 
 /* --------------------- */
 /* Gestion des priorités */
@@ -186,7 +189,28 @@ Arg:
 
 Content:
         LeolOrNull {}
-    |   LeolOrNull Insts {}
+    |   AddMemoryBloc Insts FreeMemoryBloc {
+
+            $3->n = $2 ;
+            $$    = $3 ;
+
+        }
+    ;
+
+FreeMemoryBloc: { 
+    
+        $$    = ( Content * ) calloc( 1 , sizeof( Content ) ) ;
+
+        $$->s = getMemoryBloc( memory ) ;
+
+        freeBloc( memory ) ; 
+        
+    }
+    ;
+
+AddMemoryBloc:  
+             { addMemoryBloc( memory ) ; }
+    |   Leol { addMemoryBloc( memory ) ; }
     ;
 
 LeolOrNull:
@@ -198,21 +222,12 @@ Insts:
         Inst LeolOrNull {}
     |   Inst LeolOrNull Insts {}
     ;
-    
+
 Inst:
         SetLine     {}
     |   CallLine    {}
     |   DefVarLine  {}
-    |   Bloc        {
-
-            /* Vidage de la pile mémoire du bloc */
-
-            freeBloc( memory ) ;
-
-            $$ = $1 ;
-
-        }
-
+    |   Bloc        {}
     |   ReturnLine  {}
     ;
 
@@ -261,7 +276,18 @@ SetLine:
     ;
 
 Set:
-        NAME SET Expr {}
+        NAME SET Expr {
+
+            if( searchVar( $1 , memory ) )
+                ;
+            else {
+
+                printf( "Variable %s non définie\n", $1 ) ;
+                return 1;
+            
+            } 
+
+        }
     ;
 
 CallLine:
@@ -294,17 +320,49 @@ Bloc:
         }
 
     |   For     EOL {
-            /* Ajout de pile mem */
+
         }
     ;
 
 If:
-        Bif Content END {}
-    |   Bif Content ELSE Content END {}
+        Bif Content END { 
+
+            $$ = $1;
+
+            $$->memory = $2->s;
+
+
+        
+        }
+    |   Bif Content ELSE Content END { 
+
+            $1->children->child[ 1 ] = createNode( NT_IF ) ;
+            $1->children->child[ 2 ] = $3 ;
+
+            $1->children->child[ 1 ]->memory = $2->s ;
+            $1->children->child[ 2 ]->memory = $4->s ;
+
+            $1->children->child[ 1 ]->children = createChildren( 1 ) ;
+            $1->children->child[ 2 ]->children = createChildren( 1 ) ;
+
+            $1->children->child[ 1 ]->children->child[ 0 ] = $2->n ;
+            $1->children->child[ 2 ]->children->child[ 0 ] = $4->n ;
+
+            $$ = $1 ;
+
+        }
     ;
 
 Bif:
-        IF LP BoolExprInvoke RP EOL {}
+        IF LP BoolExprInvoke RP EOL {
+
+            Children * c = createChildren( 3 ) ;
+
+            c->child[ 0 ] = $3 ;
+
+            $$ = nodeChildren( $1 , c );
+
+        }
     ;
 
 BoolExpr:
@@ -346,7 +404,11 @@ Operand:
     ;
 
 While:
-        Bwhile Content END {}
+        Bwhile Content END { 
+
+
+        
+        }
     ;
 
 Bwhile:
@@ -355,7 +417,11 @@ Bwhile:
 
 
 For:
-        Bfor Content END {}
+        Bfor Content END { 
+
+
+        
+        }
     ;
 
 Bfor:
@@ -386,7 +452,7 @@ Invoke:
 
     |   NAME    { 
 
-            if( 1 /* searchVariable( $1 ) */ )
+            if( searchVar( $1 , memory ) )
                 ;
             else {
 
@@ -480,9 +546,7 @@ Conc:
 
     |   ConcWithInvoke CONC ConcWithInvoke  {
             
-            Children * c  = ( Children * ) malloc( sizeof( Children ) ) ;
-            c->child      = ( Node ** )    malloc( sizeof( Node * ) * 2 ) ;
-            c->number     =  2 ;
+            Children * c  = createChildren( 2 ) ;
 
             c->child[ 0 ] = $1 ;
             c->child[ 1 ] = $3 ;
@@ -520,13 +584,17 @@ int main( int argc, char **argv ) {
 
         yyin = fp;
 
-        memory = ( Stack * ) calloc( 1 , sizeof( Stack ) ) ;
-        memory->top = -1 ;
+        initMemory( &memory ) ;
 
-        if( yyparse() == 1 ){
+        printf("Début du parsing\n\n");
+
+        if( yyparse() == 1 ) {
+            
             printf( "Echec du parsing\n" );
             fclose( fp );
+        
             return EXIT_FAILURE ;
+        
         }
         else
             printf( "Fichier correct\n" );

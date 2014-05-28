@@ -1,10 +1,13 @@
 void main()
-    if (true)
-        print("Bonjour")
 
-        real ab
+    real a
 
-        string b2 = "coucou"
+    a = 2
 
-    end
+    if( true )
+        a = 3
+    else
+        b = 3
+    end 
+
 end

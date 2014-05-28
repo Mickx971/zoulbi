@@ -241,7 +241,7 @@ string  \"[^\"]*\"
 
 "if"    {
 
-    yylval.node = createNode( NT_IF ) ;
+    yylval.node = createNode( NT_IFELSE ) ;
     
     return( IF ) ;
 }

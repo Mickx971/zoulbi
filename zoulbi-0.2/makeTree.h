@@ -32,6 +32,7 @@ typedef enum NodeType {
         NT_BOOLEXP    = 201 ,    // Expression booléenne
         NT_ARTHEXP    = 202 ,    // Expression arithmétique
         NT_CALLPARAM  = 203 ,    // liste de paramètres (appel)
+        NT_IFELSE     = 204 ,    // Noeud qui contient deux enfants: la liste d'instructions du if et potentiellement celle du else
 
     /***************************/
     /* Opérateurs arithmétique */
@@ -180,11 +181,26 @@ typedef struct Function {
 } Function ;
 
 
+typedef struct Content {
+    
+    Node  * n ;
+    Stack * s ;
 
-Node * createNode( int ) ;
-Node * nodeChildren( Node * , Children * ) ;
-char * copyString( char * , int ) ;
-int  * searchVar( char * , Stack * ) ;
-void   logStatement( Stack * , char * , int ) ;
-void   freeBloc( Stack * ) ;
+} Content ;
+
+
+
+Node     *     createNode( int                             ) ;
+Node     *   nodeChildren( Node  *  ,  Children *          ) ;
+char     *     copyString( char  *  ,  int                 ) ;
+int      *      searchVar( char  *  ,  Stack    *          ) ;
+void         logStatement( Stack *  ,  char     *  ,  int  ) ;
+void             freeBloc( Stack *                         ) ;
+void        addMemoryBloc( Stack *                         ) ;
+Stack    *  getMemoryBloc( Stack *                         ) ;
+void          printMemory( Stack *                         ) ;
+void           initMemory( Stack **                        ) ;
+Children * createChildren( int                             ) ;
+
+
 
