@@ -327,13 +327,20 @@ Bloc:
 If:
         Bif Content END { 
 
-            $$ = $1;
+            $1->children->child[ 2 ] = createNode( NT_EMPTY ) ;
 
-            $$->memory = $2->s;
+            $1->children->child[ 1 ] = createNode( NT_IF ) ;
 
+            $1->children->child[ 1 ]->memory = $2->s ;
 
-        
+            $1->children->child[ 1 ]->children = createChildren( 1 ) ;
+
+            $1->children->child[ 1 ]->children->child[ 0 ] = $2->n ;
+
+            $$ = $1 ;
+
         }
+
     |   Bif Content ELSE Content END { 
 
             $1->children->child[ 1 ] = createNode( NT_IF ) ;

@@ -6,6 +6,7 @@ void main()
 
     if( true )
         a = 3
+        real b
     else
         b = 3
     end 
