@@ -364,33 +364,46 @@ Bif:
         IF LP BoolExprInvoke RP EOL {
 
             Children * c = createChildren( 3 ) ;
+            // c'est pas plutot
+            // Children * c = createChildren( 1 ) ;
 
             c->child[ 0 ] = $3 ;
 
             $$ = nodeChildren( $1 , c );
 
+
+            free(c);
+
         }
     ;
 
 BoolExpr:
-        BOOL            {}
-    |   BoolExprMore    {}
+        BOOL            { $$ = $1 ; }
+    |   BoolExprMore    { $$ = $1 ; }
     ;
 
 BoolExprMore:  
-        BoolCondition                           {}
-    |   NOT     BoolExprInvoke                  {}
+        BoolCondition                           { $$ = $1; }
+    |   NOT     BoolExprInvoke                  { 
+
+            children * c = createChildren( 1 );
+
+            c->child[0] = $2;
+
+            $$ = nodeChildren( $1, c );
+
+        }
     |   BoolExprInvoke  OR    BoolExprInvoke    {}
     |   BoolExprInvoke  AND   BoolExprInvoke    {}
     ;
 
 BoolExprInvoke:
-        Invoke      {}
-    |   BoolExpr    {}
+        Invoke      { $$ = $1 ; }
+    |   BoolExpr    { $$ = $1 ; }
     ;
 
 BoolCondition:
-        EqualCondition             {}
+        EqualCondition             { $$ = $1 ; }
     |   ArthExpr    GT    ArthExpr {}
     |   ArthExpr    GE    ArthExpr {}
     |   ArthExpr    LT    ArthExpr {}
@@ -547,7 +560,7 @@ ArthExpr2:
 ArthExpr3:
         MINUS ArthExpr7 %prec NEG {
 
-            Children c = createChildren( 1 ) ;
+            Children * c = createChildren( 1 ) ;
 
             c->child[0] = $2;
 
@@ -561,7 +574,7 @@ ArthExpr3:
 ArthExpr4:
         ArthExpr8 POW ArthExpr9 {
 
-            Children c = createChildren( 2 ) ;
+            Children * c = createChildren( 2 ) ;
 
             c->child[0] = $1;
             c->child[0] = $3;
