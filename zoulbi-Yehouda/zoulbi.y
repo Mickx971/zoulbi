@@ -561,11 +561,12 @@ ArthExpr3:
 ArthExpr4:
         ArthExpr8 POW ArthExpr9 {
 
-            Children c = createChildren( 1 ) ;
+            Children c = createChildren( 2 ) ;
 
-            c->child[0] = $2;
+            c->child[0] = $1;
+            c->child[0] = $3;
 
-            $$ = nodeChildren( $1, c );
+            $$ = nodeChildren( $2, c );
 
             free( c );
 
