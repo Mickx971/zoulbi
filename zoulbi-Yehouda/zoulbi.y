@@ -386,15 +386,37 @@ BoolExprMore:
         BoolCondition                           { $$ = $1; }
     |   NOT     BoolExprInvoke                  { 
 
-            children * c = createChildren( 1 );
+            Children * c = createChildren( 1 );
 
             c->child[0] = $2;
 
             $$ = nodeChildren( $1, c );
 
         }
-    |   BoolExprInvoke  OR    BoolExprInvoke    {}
-    |   BoolExprInvoke  AND   BoolExprInvoke    {}
+    |   BoolExprInvoke  OR    BoolExprInvoke    {
+
+            Children * c = createChildren( 2 ) ;
+
+            c->child[0] = $1 ;
+            c->child[1] = $3 ;
+
+            $$ = nodeChildren( $2, c );
+
+            free(c);
+
+    }
+    |   BoolExprInvoke  AND   BoolExprInvoke    {
+
+            Children * c = createChildren( 2 ) ;
+
+            c->child[0] = $1 ;
+            c->child[1] = $3 ;
+
+            $$ = nodeChildren( $2, c );
+
+            free(c);
+
+    }
     ;
 
 BoolExprInvoke:
@@ -404,10 +426,54 @@ BoolExprInvoke:
 
 BoolCondition:
         EqualCondition             { $$ = $1 ; }
-    |   ArthExpr    GT    ArthExpr {}
-    |   ArthExpr    GE    ArthExpr {}
-    |   ArthExpr    LT    ArthExpr {}
-    |   ArthExpr    LE    ArthExpr {}
+    |   ArthExpr    GT    ArthExpr {
+
+            Children * c = createChildren( 2 ) ;
+
+            c->child[0] = $1 ;
+            c->child[1] = $3 ;
+
+            $$ = nodeChildren( $2, c );
+
+            free(c);
+
+    }
+    |   ArthExpr    GE    ArthExpr {
+
+            Children * c = createChildren( 2 ) ;
+
+            c->child[0] = $1 ;
+            c->child[1] = $3 ;
+
+            $$ = nodeChildren( $2, c );
+
+            free(c);
+
+    }
+    |   ArthExpr    LT    ArthExpr {
+
+            Children * c = createChildren( 2 ) ;
+
+            c->child[0] = $1 ;
+            c->child[1] = $3 ;
+
+            $$ = nodeChildren( $2, c );
+
+            free(c);
+
+    }
+    |   ArthExpr    LE    ArthExpr {
+
+            Children * c = createChildren( 2 ) ;
+
+            c->child[0] = $1 ;
+            c->child[1] = $3 ;
+
+            $$ = nodeChildren( $2, c );
+
+            free(c);
+
+    }
     ;
 
 EqualCondition:
@@ -521,7 +587,7 @@ ArthExpr1:
 ArthExpr2:
         ArthExpr6   MULT    ArthExpr6 { 
         
-            children * c = createChildren( 2 );
+            Children * c = createChildren( 2 );
 
             c->child[0] = $1 ;
             c->child[1] = $3 ;
@@ -533,7 +599,7 @@ ArthExpr2:
         }
     |   ArthExpr6   MOD     ArthExpr6 { 
         
-            children * c = createChildren( 2 );
+            Children * c = createChildren( 2 );
 
             c->child[0] = $1 ;
             c->child[1] = $3 ;
@@ -545,7 +611,7 @@ ArthExpr2:
         }
     |   ArthExpr6   DIV     ArthExpr6 { 
         
-            children * c = createChildren( 2 );
+            Children * c = createChildren( 2 );
 
             c->child[0] = $1 ;
             c->child[1] = $3 ;
