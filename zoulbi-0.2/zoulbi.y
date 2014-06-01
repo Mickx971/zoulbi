@@ -545,8 +545,6 @@ Conc:
 
             /* Création du noeud string */
 
-            $$ = createNode( NT_STRING ) ;
-
             $$->string = $1->string ;
 
         }
