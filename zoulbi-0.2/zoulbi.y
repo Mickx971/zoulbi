@@ -253,6 +253,8 @@ DefVarLine:
 
                 free( $2 ) ;
 
+                // TODO: Ne pas free seulement l'élément mais la totalité de la mémoire allouée
+
                 return 1 ;
 
             }
