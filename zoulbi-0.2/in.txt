@@ -8,6 +8,7 @@ void main()
         a = 3
         real b
     else
+    	real b
         b = 3
     end 
 

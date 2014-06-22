@@ -197,7 +197,6 @@ int      *      searchVar( char  *  ,  Stack    *          ) ;
 void         logStatement( Stack *  ,  char     *  ,  int  ) ;
 void             freeBloc( Stack *                         ) ;
 void        addMemoryBloc( Stack *                         ) ;
-Stack    *  getMemoryBloc( Stack *                         ) ;
 void          printMemory( Stack *                         ) ;
 void           initMemory( Stack **                        ) ;
 Children * createChildren( int                             ) ;

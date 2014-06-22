@@ -191,21 +191,15 @@ Content:
         LeolOrNull {}
     |   AddMemoryBloc Insts FreeMemoryBloc {
 
-            $3->n = $2 ;
-            $$    = $3 ;
+            $$    = ( Content * ) calloc( 1 , sizeof( Content ) ) ;
+
+            $$->n = $2 ;
 
         }
     ;
 
-FreeMemoryBloc: { 
-    
-        $$    = ( Content * ) calloc( 1 , sizeof( Content ) ) ;
-
-        $$->s = getMemoryBloc( memory ) ;
-
-        freeBloc( memory ) ; 
-        
-    }
+FreeMemoryBloc: 
+             { freeBloc( memory ) ; }
     ;
 
 AddMemoryBloc:  
