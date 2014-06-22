@@ -10,7 +10,7 @@
 
     void    yyerror(char *) ;
     int     yylex()         ;
-    int     yydebug = 1     ;
+    int     yydebug = 0     ;
 
     Stack * memory ;
 
@@ -392,6 +392,8 @@ BoolExprMore:
 
             $$ = nodeChildren( $1, c );
 
+            free(c);
+
         }
     |   BoolExprInvoke  OR    BoolExprInvoke    {
 
@@ -404,7 +406,7 @@ BoolExprMore:
 
             free(c);
 
-    }
+        }
     |   BoolExprInvoke  AND   BoolExprInvoke    {
 
             Children * c = createChildren( 2 ) ;
@@ -416,7 +418,7 @@ BoolExprMore:
 
             free(c);
 
-    }
+        }
     ;
 
 BoolExprInvoke:
@@ -437,7 +439,7 @@ BoolCondition:
 
             free(c);
 
-    }
+        }
     |   ArthExpr    GE    ArthExpr {
 
             Children * c = createChildren( 2 ) ;
@@ -449,7 +451,7 @@ BoolCondition:
 
             free(c);
 
-    }
+        }
     |   ArthExpr    LT    ArthExpr {
 
             Children * c = createChildren( 2 ) ;
@@ -461,7 +463,7 @@ BoolCondition:
 
             free(c);
 
-    }
+        }
     |   ArthExpr    LE    ArthExpr {
 
             Children * c = createChildren( 2 ) ;
@@ -473,7 +475,7 @@ BoolCondition:
 
             free(c);
 
-    }
+        }
     ;
 
 EqualCondition:
