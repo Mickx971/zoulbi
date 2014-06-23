@@ -6,7 +6,8 @@ flex zoulbi.l
 gcc -c lex.yy.c -o zoulbi.lex.o
 gcc -c zoulbi.tab.c -o zoulbi.y.o
 gcc -c makeTree.c -o makeTree.o
-gcc -o zoulbi zoulbi.lex.o zoulbi.y.o makeTree.o
+gcc -c evalTree.c -o evalTree.o
+gcc -o zoulbi zoulbi.lex.o zoulbi.y.o makeTree.o evalTree.o
 
 rm lex.yy.c     &>/dev/null
 rm zoulbi.lex.o &>/dev/null

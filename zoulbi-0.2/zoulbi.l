@@ -5,6 +5,15 @@
     #include "makeTree.h"
     #include "zoulbi.h"
     #include <string.h>
+
+    void initializeEmptyChild( Node * node ) {
+        
+        node->children               = ( Children * ) malloc( sizeof( Children ) ) ;
+        node->children->child        = ( Node ** ) malloc( sizeof( Node * ) ) ;
+        node->children->child[ 0 ]   = createNode( NT_EMPTY ) ;
+        node->children->number          = 0 ;
+    
+    }
 %}
 
 empty   [ \t]+
@@ -194,7 +203,8 @@ string  \"[^\"]*\"
 
 
 ("real"|"bool"|"string"|"void") { 
-    yylval.node = createNode( NT_DEC )  ;
+    
+    yylval.node = createNode( NT_DEC ) ;
 
     if( *yytext == 'r' )
         yylval.node->typeVar = T_REAL ;
@@ -214,8 +224,10 @@ string  \"[^\"]*\"
         }
     
     }
+
+    initializeEmptyChild( yylval.node ) ;
     
-    return( TYPE )  ; 
+    return( TYPE ) ;
 }
 
 
@@ -274,7 +286,9 @@ string  \"[^\"]*\"
 "return" {
 
     yylval.node = createNode( NT_RETURN ) ;
-
+    
+    initializeEmptyChild( yylval.node ) ;
+    
     return( RETURN ) ;
 
 }

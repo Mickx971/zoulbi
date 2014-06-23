@@ -4,6 +4,7 @@
     #include <string.h>
     #include <math.h>
     #include "makeTree.h"
+    #include "evalTree.h"
 
     extern int  yyparse() ;
     extern FILE *yyin ;
@@ -11,7 +12,7 @@
     void    yyerror(char *) ;
     int     yylex()         ;
     int     yydebug = 0     ;
-
+    Node  * root            ;  
     Stack * memory ;
 
 %}
@@ -27,7 +28,6 @@
    
     Node      *   node    ;
     char      *   str     ;
-    Content   *   content ;
 
 }
 
@@ -90,8 +90,8 @@
 %type <node>    ListArgOrEmpty
 %type <node>    ListArg
 %type <node>    Arg
-%type <content> Content
-%type <content> FreeMemoryBloc
+%type <node>    Content
+%type <node>    FreeMemoryBloc
 %type <node>    LeolOrNull
 %type <node>    Insts
 %type <node>    Inst
@@ -156,7 +156,7 @@
 
 Input:
                             {}  
-    |   Function            {}
+    |   Function            { root = $1 ; }
     |   Function Leol Input {}
     ;
 
@@ -191,9 +191,7 @@ Content:
         LeolOrNull {}
     |   AddMemoryBloc Insts FreeMemoryBloc {
 
-            $$    = ( Content * ) calloc( 1 , sizeof( Content ) ) ;
-
-            $$->n = $2 ;
+            $$ = $2 ;
 
         }
     ;
@@ -327,11 +325,9 @@ If:
 
             $1->children->child[ 1 ] = createNode( NT_IF ) ;
 
-            $1->children->child[ 1 ]->memory = $2->s ;
-
             $1->children->child[ 1 ]->children = createChildren( 1 ) ;
 
-            $1->children->child[ 1 ]->children->child[ 0 ] = $2->n ;
+            $1->children->child[ 1 ]->children->child[ 0 ] = $2 ;
 
             $$ = $1 ;
 
@@ -342,14 +338,11 @@ If:
             $1->children->child[ 1 ] = createNode( NT_IF ) ;
             $1->children->child[ 2 ] = $3 ;
 
-            $1->children->child[ 1 ]->memory = $2->s ;
-            $1->children->child[ 2 ]->memory = $4->s ;
-
             $1->children->child[ 1 ]->children = createChildren( 1 ) ;
             $1->children->child[ 2 ]->children = createChildren( 1 ) ;
 
-            $1->children->child[ 1 ]->children->child[ 0 ] = $2->n ;
-            $1->children->child[ 2 ]->children->child[ 0 ] = $4->n ;
+            $1->children->child[ 1 ]->children->child[ 0 ] = $2 ;
+            $1->children->child[ 2 ]->children->child[ 0 ] = $4 ;
 
             $$ = $1 ;
 
@@ -444,10 +437,10 @@ IList:
     ;
 
 Expr:
-        ArthExpr    {}
-    |   BoolExpr    {}
-    |   Conc        {}
-    |   Invoke      {}
+        ArthExpr    {  }
+    |   BoolExpr    {  }
+    |   Conc        {  }
+    |   Invoke      {  }
     ;
 
 Invoke:
@@ -539,8 +532,6 @@ ArthExpr12:
 Conc:
         STRING                              {
 
-            /* Création du noeud string */
-
             $$ = $1 ;
 
         }
@@ -568,26 +559,30 @@ ConcWithInvoke:
 %%
 
 void yyerror( char * s ) {
+
     printf( "%s\n" , s );
+
 }
 
 int main( int argc, char **argv ) {
 
-    if ( ( argc == 3 ) && ( strcmp( argv[1], "-f" ) == 0 ) ) {
+    if ( ( argc == 3 ) && ( strcmp( argv[ 1 ] , "-f" ) == 0 ) ) {
     
 
-        FILE * fp = fopen( argv[2], "r" );
+        FILE * fp = fopen( argv[ 2 ] , "r" );
 
         if( !fp ) {
+            
             printf( "Impossible d'ouvrir le fichier à executer.\n" );
             return EXIT_FAILURE ;
+        
         }
 
         yyin = fp;
 
         initMemory( &memory ) ;
 
-        printf("Début du parsing\n\n");
+        printf( "Début du parsing\n\n" );
 
         if( yyparse() == 1 ) {
             
@@ -597,8 +592,12 @@ int main( int argc, char **argv ) {
             return EXIT_FAILURE ;
         
         }
-        else
+        else {
+         
             printf( "Fichier correct\n" );
+            executeTree( root ) ;
+
+        }
   
         fclose( fp );
     }

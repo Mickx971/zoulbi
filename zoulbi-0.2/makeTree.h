@@ -162,7 +162,12 @@ typedef struct Node {
     
     bool     boolean  ;
 
-    Type     typeVar  ;
+    union{
+        
+        Type    typeVar  ;
+        Type    typeExpr ;
+    
+    } ;
 
     Stack *  memory   ;
 
@@ -179,14 +184,6 @@ typedef struct Function {
     Node * func ;
 
 } Function ;
-
-
-typedef struct Content {
-    
-    Node  * n ;
-    Stack * s ;
-
-} Content ;
 
 
 
