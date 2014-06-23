@@ -20,6 +20,6 @@ gcc -c zoulbi.tab.c -o zoulbi.y.o
 gcc -c makeTree.c -o makeTree.o
 gcc -o zoulbi zoulbi.lex.o zoulbi.y.o makeTree.o
 
-minipseud -f in.txt
+zoulbi -f in.txt
 
 pause

@@ -1,14 +1,13 @@
 void main()
 
     real a
+    real b
 
     a = 2
 
     if( true )
         a = 3
-        real b
     else
-        b = 3
+    	b = 5
     end 
-
 end

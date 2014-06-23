@@ -202,5 +202,3 @@ void          printMemory( Stack *                         ) ;
 void           initMemory( Stack **                        ) ;
 Children * createChildren( int                             ) ;
 
-
-

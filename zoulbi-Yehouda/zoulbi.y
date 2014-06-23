@@ -191,21 +191,15 @@ Content:
         LeolOrNull {}
     |   AddMemoryBloc Insts FreeMemoryBloc {
 
-            $3->n = $2 ;
-            $$    = $3 ;
+            $$    = ( Content * ) calloc( 1 , sizeof( Content ) ) ;
+
+            $$->n = $2 ;
 
         }
     ;
 
-FreeMemoryBloc: { 
-    
-        $$    = ( Content * ) calloc( 1 , sizeof( Content ) ) ;
-
-        $$->s = getMemoryBloc( memory ) ;
-
-        freeBloc( memory ) ; 
-        
-    }
+FreeMemoryBloc: 
+             { freeBloc( memory ) ; }
     ;
 
 AddMemoryBloc:  
@@ -252,6 +246,8 @@ DefVarLine:
                 printf( "Déclaration multiple de la variable %s\n", $2 ) ;
 
                 free( $2 ) ;
+
+                // TODO: Ne pas free seulement l'élément mais la totalité de la mémoire allouée
 
                 return 1 ;
 
@@ -364,15 +360,10 @@ Bif:
         IF LP BoolExprInvoke RP EOL {
 
             Children * c = createChildren( 3 ) ;
-            // c'est pas plutot
-            // Children * c = createChildren( 1 ) ;
 
             c->child[ 0 ] = $3 ;
 
             $$ = nodeChildren( $1 , c );
-
-
-            free(c);
 
         }
     ;
@@ -392,6 +383,8 @@ BoolExprMore:
 
             $$ = nodeChildren( $1, c );
 
+            free(c);
+
         }
     |   BoolExprInvoke  OR    BoolExprInvoke    {
 
@@ -404,7 +397,7 @@ BoolExprMore:
 
             free(c);
 
-    }
+        }
     |   BoolExprInvoke  AND   BoolExprInvoke    {
 
             Children * c = createChildren( 2 ) ;
@@ -416,7 +409,7 @@ BoolExprMore:
 
             free(c);
 
-    }
+        }
     ;
 
 BoolExprInvoke:
@@ -437,7 +430,7 @@ BoolCondition:
 
             free(c);
 
-    }
+        }
     |   ArthExpr    GE    ArthExpr {
 
             Children * c = createChildren( 2 ) ;
@@ -449,7 +442,7 @@ BoolCondition:
 
             free(c);
 
-    }
+        }
     |   ArthExpr    LT    ArthExpr {
 
             Children * c = createChildren( 2 ) ;
@@ -461,7 +454,7 @@ BoolCondition:
 
             free(c);
 
-    }
+        }
     |   ArthExpr    LE    ArthExpr {
 
             Children * c = createChildren( 2 ) ;
@@ -473,8 +466,9 @@ BoolCondition:
 
             free(c);
 
-    }
+        }
     ;
+
 
 EqualCondition:
         Operand EQ Operand  {}
@@ -637,6 +631,7 @@ ArthExpr3:
         }
     ;
 
+
 ArthExpr4:
         ArthExpr8 POW ArthExpr9 {
 
@@ -694,6 +689,7 @@ ArthExpr12:
     |   LP ArthExpr1 RP { $$ = $2 ; }
     |   LP ArthExpr2 RP { $$ = $2 ; }
     ;
+
 
 Conc:
         STRING                              {
