@@ -97,15 +97,15 @@ void freeBloc( Stack * mem ) {
 
     int i ;
 
-    for( i = 0 ; i < mem->stack[ mem->top ].top ; i++ ) {
-        
+    for( i = 0 ; i <= mem->stack[ mem->top ].top ; i++ ) {
+
         free( mem->stack[ mem->top ].v[ i ] ) ;
         mem->stack[ mem->top ].v[ i ] = NULL  ;
-    
+
     }
 
-    free( *( &( mem->stack ) + mem->top ) ) ;
-    *( &( mem->stack ) + mem->top ) = NULL  ;
+    free( &( mem->stack ) + mem->top ) ;
+    *( &( mem->stack ) + mem->top ) = NULL ;
 
     mem->stack = ( Variables * ) realloc( mem->stack , sizeof( Variables ) * mem->top ) ;
     mem->top-- ;

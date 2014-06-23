@@ -1,15 +1,13 @@
 void main()
 
     real a
+    real b
+    real c
 
     a = 2
 
-    if( true )
-        a = 3
-        real b
-    else
-    	real b
-        b = 3
-    end 
+   	b = 1
+
+   	c = 3
 
 end

@@ -10,7 +10,7 @@
 
     void    yyerror(char *) ;
     int     yylex()         ;
-    int     yydebug = 1     ;
+    int     yydebug = 0     ;
 
     Stack * memory ;
 
