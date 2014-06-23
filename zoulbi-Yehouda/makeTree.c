@@ -106,7 +106,18 @@ Stack * getMemoryBloc( Stack * mem ) {
 
 void freeBloc( Stack * mem ) {
 
-    *( &( mem->stack ) + mem->top ) = NULL ;
+    int i ;
+
+    for( i = 0 ; i < mem->stack[ mem->top ].top ; i++ ) {
+        
+        free( mem->stack[ mem->top ].v[ i ] ) ;
+        mem->stack[ mem->top ].v[ i ] = NULL  ;
+    
+    }
+
+    free( *( &( mem->stack ) + mem->top ) ) ;
+    *( &( mem->stack ) + mem->top ) = NULL  ;
+
     mem->stack = ( Variables * ) realloc( mem->stack , sizeof( Variables ) * mem->top ) ;
     mem->top-- ;
 
@@ -149,21 +160,4 @@ void printMemory( Stack * mem ) {
 
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

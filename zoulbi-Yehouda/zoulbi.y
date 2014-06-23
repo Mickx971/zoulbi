@@ -175,16 +175,33 @@ Prot:
 
 ListArgOrEmpty:
         {}
-    |   ListArg {}
+    |   ListArg { $$ = $1 ; }
     ;
 
 ListArg:
-        Arg {}
-    |   Arg VIRGUL ListArg {}
+        Arg { $$ = $1; }
+    |   Arg VIRGUL ListArg { 
+
+            Children * c = createChildren( 2 ) ;
+
+            c->child[0] = $1 ;
+            c->child[1] = $3 ;
+
+            $$ = createNode(NT_LISTINST) ;
+            $$ = nodeChildren( $$, c ) ;
+
+            free( c ) ;
+     }
     ;
 
 Arg:
-        TYPE NAME {}
+        TYPE NAME {
+
+            $$ = createNode( NT_DEC ) ;
+            $$->typeVar = $1->typeVar ;
+
+            $$->name = $2->name ;
+        }
     ;
 
 Content:
@@ -218,11 +235,11 @@ Insts:
     ;
 
 Inst:
-        SetLine     {}
-    |   CallLine    {}
-    |   DefVarLine  {}
-    |   Bloc        {}
-    |   ReturnLine  {}
+        SetLine     { $$ = $1 ; }
+    |   CallLine    { $$ = $1 ; }
+    |   DefVarLine  { $$ = $1 ; }
+    |   Bloc        { $$ = $1 ; }
+    |   ReturnLine  { $$ = $1 ; }
     ;
 
 ReturnLine:
@@ -298,12 +315,12 @@ Call:
 
 ListParamOrEmpty:
         {}
-    |   ListParam {}
+    |   ListParam { $$ = $1 ; }
     ;
 
 ListParam:
         Expr VIRGUL ListParam {}
-    |   Expr {}
+    |   Expr { $$ = $1 ; }
     ;
 
 Bloc:
@@ -464,23 +481,45 @@ BoolCondition:
 
             $$ = nodeChildren( $2, c );
 
-            free(c);
+            free( c ) ;
 
         }
     ;
 
 
 EqualCondition:
-        Operand EQ Operand  {}
-    |   Operand NE Operand  {}
+        Operand EQ Operand  {
+
+            Children * c = createChildren( 2 ) ;
+
+            c->child[0] = $1 ;
+            c->child[1] = $3 ;
+
+            $$ = nodeChildren( $2, c ) ;
+
+            free( c ) ;
+
+        }
+    |   Operand NE Operand  {
+
+            Children * c = createChildren( 2 ) ;
+
+            c->child[0] = $1 ;
+            c->child[1] = $3 ;
+
+            $$ = nodeChildren( $2, c ) ;
+
+            free( c ) ;
+
+        }
     ;
 
 Operand:
-        ArthExpr            {}
-    |   Conc                {}
-    |   Invoke              {}
-    |   LP BoolExprMore RP  {}
-    |   BOOL                {}
+        ArthExpr            { $$ = $1; }
+    |   Conc                { $$ = $1; }
+    |   Invoke              { $$ = $1; }
+    |   LP BoolExprMore RP  { $$ = $2; }
+    |   BOOL                { $$ = $1; }
     ;
 
 While:
@@ -510,21 +549,21 @@ Bfor:
 
 InstsList:
         {}
-    |   IList {}
+    |   IList { $$ = $1 ; }
     ;
 
 IList:
         Set VIRGUL IList    {}
     |   Call VIRGUL IList   {}
-    |   Set                 {}
-    |   Call                {} 
+    |   Set                 { $$ = $1 ; }
+    |   Call                { $$ = $1 ; }
     ;
 
 Expr:
-        ArthExpr    {}
-    |   BoolExpr    {}
-    |   Conc        {}
-    |   Invoke      {}
+        ArthExpr    { $$ = $1 ; }
+    |   BoolExpr    { $$ = $1 ; }
+    |   Conc        { $$ = $1 ; }
+    |   Invoke      { $$ = $1 ; }
     ;
 
 Invoke:
