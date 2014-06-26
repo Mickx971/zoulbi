@@ -531,13 +531,27 @@ Bwhile:
 For:
         Bfor Content END { 
 
-
+            $1->children->child[ 3 ] = $2 ;
+            $$ = $1 ;
         
         }
     ;
 
 Bfor:
-        FOR LP InstsList COLON BoolExprInvoke COLON InstsList RP EOL {}
+        FOR LP InstsList COLON BoolExprInvoke COLON InstsList RP EOL {
+
+            Children * c = createChildren( 4 ) ;
+
+            c->child[ 0 ] = $3 ;
+            c->child[ 1 ] = $5 ;
+            c->child[ 2 ] = $7 ;
+            c->child[ 3 ] = NULL ;
+
+            $$ = nodeChildren( $1 , c ) ;
+
+            freeChildren( c ) ;
+
+        }
     ;
 
 InstsList:
