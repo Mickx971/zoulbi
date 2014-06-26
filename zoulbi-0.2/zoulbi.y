@@ -364,41 +364,155 @@ Bif:
     ;
 
 BoolExpr:
-        BOOL            {}
-    |   BoolExprMore    {}
+        BOOL            { $$ = $1 ; }
+    |   BoolExprMore    { $$ = $1 ; }
     ;
 
 BoolExprMore:  
-        BoolCondition                           {}
-    |   NOT     BoolExprInvoke                  {}
-    |   BoolExprInvoke  OR    BoolExprInvoke    {}
-    |   BoolExprInvoke  AND   BoolExprInvoke    {}
+        BoolCondition                           {
+
+            $$ = $1 ;
+
+        }
+    |   NOT     BoolExprInvoke                  {
+
+            Children * c = createChildren( 1 ) ;
+
+            c->child[ 0 ] = $2 ;
+
+            $$ = nodeChildren( $1 , c ) ;
+
+            freeChildren( c ) ;
+
+        }
+    |   BoolExprInvoke  OR    BoolExprInvoke    {
+
+            Children * c = createChildren( 2 ) ;
+
+            c->child[ 0 ] = $1 ;
+            c->child[ 1 ] = $3 ;
+
+            $$ = nodeChildren( $2 , c ) ;
+
+            freeChildren( c ) ;
+    }
+
+    |   BoolExprInvoke  AND   BoolExprInvoke    {
+
+            Children * c = createChildren( 2 ) ;
+
+            c->child[ 0 ] = $1 ;
+            c->child[ 1 ] = $3 ;
+
+            $$ = nodeChildren( $2 , c ) ;
+
+            freeChildren( c ) ;
+    }
+
     ;
 
 BoolExprInvoke:
-        Invoke      {}
-    |   BoolExpr    {}
+        Invoke      { $$ = $1 ; }
+    |   BoolExpr    { $$ = $1 ; }
     ;
 
 BoolCondition:
-        EqualCondition             {}
-    |   ArthExpr    GT    ArthExpr {}
-    |   ArthExpr    GE    ArthExpr {}
-    |   ArthExpr    LT    ArthExpr {}
-    |   ArthExpr    LE    ArthExpr {}
+        
+        EqualCondition             { 
+
+            $$ = $1 ;
+
+        }
+
+    |   ArthExpr    GT    ArthExpr { 
+
+            Children * c = createChildren( 2 ) ;
+
+            c->child[ 0 ] = $1 ;
+            c->child[ 1 ] = $3 ;
+
+            $$ = nodeChildren( $2 , c ) ;
+
+            freeChildren( c ) ;
+
+        }
+
+    |   ArthExpr    GE    ArthExpr { 
+
+            Children * c = createChildren( 2 ) ;
+
+            c->child[ 0 ] = $1 ;
+            c->child[ 1 ] = $3 ;
+
+            $$ = nodeChildren( $2 , c ) ;
+
+            freeChildren( c ) ;
+
+        }
+
+    |   ArthExpr    LT    ArthExpr { 
+
+            Children * c = createChildren( 2 ) ;
+
+            c->child[ 0 ] = $1 ;
+            c->child[ 1 ] = $3 ;
+
+            $$ = nodeChildren( $2 , c ) ;
+
+            freeChildren( c ) ;
+
+        }
+
+    |   ArthExpr    LE    ArthExpr { 
+
+            Children * c = createChildren( 2 ) ;
+
+            c->child[ 0 ] = $1 ;
+            c->child[ 1 ] = $3 ;
+
+            $$ = nodeChildren( $2 , c ) ;
+
+            freeChildren( c ) ;
+
+        }
+
     ;
 
 EqualCondition:
-        Operand EQ Operand  {}
-    |   Operand NE Operand  {}
+
+        Operand EQ Operand  {
+
+            Children * c = createChildren( 2 ) ;
+
+            c->child[ 0 ] = $1 ;
+            c->child[ 1 ] = $3 ;
+
+            $$ = nodeChildren( $2 , c ) ;
+
+            freeChildren( c ) ;
+
+        }
+
+    |   Operand NE Operand  {
+
+            Children * c = createChildren( 2 ) ;
+
+            c->child[ 0 ] = $1 ;
+            c->child[ 1 ] = $3 ;
+
+            $$ = nodeChildren( $2 , c ) ;
+
+            freeChildren( c ) ;
+
+        }
     ;
 
 Operand:
-        ArthExpr            {}
-    |   Conc                {}
-    |   Invoke              {}
-    |   LP BoolExprMore RP  {}
-    |   BOOL                {}
+        ArthExpr            { $$ = $1 ; }
+    |   Conc                { $$ = $1 ; }
+    |   Invoke              { $$ = $1 ; }
+    |   LP BoolExprMore RP  { $$ = $2 ; }
+    |   BOOL                { $$ = $1 ; }
     ;
 
 While:
@@ -427,15 +541,68 @@ Bfor:
     ;
 
 InstsList:
-        {}
-    |   IList {}
+       
+        { $$ = createNode( NT_EMPTY ) ; }
+    
+    |   IList { 
+            $$ = $1 ;
+        }
+    
     ;
 
 IList:
-        Set VIRGUL IList    {}
-    |   Call VIRGUL IList   {}
-    |   Set                 {}
-    |   Call                {} 
+        Set VIRGUL IList    {
+
+            $$ = createNode( NT_INSTLIST ) ;
+            
+            Children * c = createChildren( 2 ) ;
+            c->child[ 0 ] = $1 ;
+            c->child[ 1 ] = $3 ;
+
+            $$ = nodeChildren( $$ , c ) ;
+
+            freeChildren( c ) ;
+
+        }
+
+    |   Call VIRGUL IList   {
+
+            $$ = createNode( NT_INSTLIST ) ;
+            
+            Children * c = createChildren( 2 ) ;
+            c->child[ 0 ] = $1 ;
+            c->child[ 1 ] = $3 ;
+
+            $$ = nodeChildren( $$ , c ) ;
+
+            freeChildren( c ) ;
+
+        }
+    
+    |   Set                 { 
+            $$ = createNode( NT_INSTLIST ) ;
+            
+            Children * c = createChildren( 2 ) ;
+            c->child[ 0 ] = $1 ;
+            c->child[ 1 ] = createNode( NT_EMPTY ) ;
+
+            $$ = nodeChildren( $$ , c ) ;
+
+            freeChildren( c ) ;
+        }
+
+    |   Call                {
+            
+            $$ = createNode( NT_INSTLIST ) ;
+            
+            Children * c = createChildren( 2 ) ;
+            c->child[ 0 ] = $1 ;
+            c->child[ 1 ] = createNode( NT_EMPTY ) ;
+
+            $$ = nodeChildren( $$ , c ) ;
+
+            freeChildren( c ) ;
+        }
     ;
 
 Expr:
@@ -459,7 +626,7 @@ Expr:
             $$ = $1 ;
         
         }
-        
+
     |   Invoke      { $$ = $1 ; }
     ;
 
