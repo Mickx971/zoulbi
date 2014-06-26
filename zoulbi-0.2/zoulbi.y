@@ -166,11 +166,26 @@ Leol:
     ;
 
 Function:
-        Prot Content END {}
+        Prot Content END { 
+        
+            $1->children->child[ 1 ] = $2 ; 
+            $$ = $1 ;
+
+            setContainer( $$ ) ;
+        
+        }
     ;
 
 Prot:
-        TYPE NAME LP ListArgOrEmpty RP EOL {}
+        TYPE NAME LP ListArgOrEmpty RP EOL {
+
+            $$ = createNode( NT_FUNCTION ) ;
+            $$->children = createChildren( 2 ) ;
+            $$->children->child[ 0 ] = $4 ;
+            $$->name = $2 ;
+            $$->typeVar = $1->typeVar ;
+        
+        }
     ;
 
 ListArgOrEmpty:
@@ -188,7 +203,12 @@ Arg:
     ;
 
 Content:
-        LeolOrNull {}
+        LeolOrNull {
+        
+            $$ = createNode( NT_EMPTY ) ;
+        
+        }
+
     |   AddMemoryBloc Insts FreeMemoryBloc {
 
             $$ = $2 ;
@@ -211,16 +231,57 @@ LeolOrNull:
     ;
 
 Insts:
-        Inst LeolOrNull {}
-    |   Inst LeolOrNull Insts {}
+        Inst LeolOrNull { 
+
+            if( $1->type == NT_LISTINST ) {
+
+                $$ = $1 ;
+            
+            } else {
+        
+                $$ = createNode( NT_LISTINST ) ;
+
+                Children * c = createChildren( 2 ) ;
+
+                c->child[ 0 ] = $1 ;
+                c->child[ 1 ] = createNode( NT_EMPTY ) ;
+
+                $$ = nodeChildren( $$ , c ) ;
+
+                freeChildren( c ) ;
+            }
+        }
+
+    |   Inst LeolOrNull Insts {
+
+            if( $1->type == NT_LISTINST ) {
+
+                $1->children->child[ 1 ]->children->child[ 1 ] = $3 ;
+
+                $$ = $1 ;
+            
+            } else {
+
+                $$ = createNode( NT_LISTINST ) ;
+
+                Children * c = createChildren( 2 ) ;
+
+                c->child[ 0 ] = $1 ;
+                c->child[ 1 ] = $3 ;
+
+                $$ = nodeChildren( $$ , c ) ;
+
+                freeChildren( c ) ;
+            }
+        }
     ;
 
 Inst:
-        SetLine     {}
-    |   CallLine    {}
-    |   DefVarLine  {}
-    |   Bloc        {}
-    |   ReturnLine  {}
+        SetLine     { $$ = $1 ; }
+    |   CallLine    { $$ = $1 ; }
+    |   DefVarLine  { $$ = $1 ; }
+    |   Bloc        { $$ = $1 ; }
+    |   ReturnLine  { $$ = $1 ; }
     ;
 
 ReturnLine:
@@ -229,13 +290,8 @@ ReturnLine:
     ;
 
 DefVarLine:
+
         TYPE NAME EOL           {
-
-            /* Ajout du nom de la variable au noeud Déclaration */
-
-            $1->name = $2 ;
-
-            $$ = $1 ;
 
             /* Vérification de la validité de la déclaration */
 
@@ -253,27 +309,136 @@ DefVarLine:
 
             /* Enregistrement de la déclaration */
 
-            else
-                logStatement( memory , $2 , $$->typeVar ) ;
+            logStatement( memory , $2 , $1->typeVar ) ;
 
-            /* ! Discuter du type void pour les variables ! */
+            
+            /* Ajout du nom de la variable au noeud Déclaration */
 
+            $1->name = $2 ;
+
+            $$ = $1 ;
         }
 
     |   TYPE NAME SET Expr EOL  {
-            
+
+            /* Vérification de la validité de la déclaration */
+
+            if( searchVar( $2 , memory ) ) {
+
+                printf( "Déclaration multiple de la variable %s\n", $2 ) ;
+
+                free( $2 ) ;
+
+                // TODO: Ne pas free seulement l'élément mais la totalité de la mémoire allouée
+
+                return 1 ;
+
+            }
+
+
+            /* On vérifie que l'affectation est valide */
+
+            if( $1->typeVar != $4->typeExpr ) {
+
+                printf("Erreur: incompatibilitée de type\n");
+                printf("Affectation de la variable %s impossible\n", $2 );
+                
+                free( $2 ) ;
+
+                return 1 ;
+            }
+
+
+            /* On décompose cette instruction en une déclaration et une affectation */
+
+
+            $$ = createNode( NT_LISTINST ) ;
+
+
+            // Déclaration
+            $1->name = $2 ;
+
+
+            //Affectation
+            Children * c            = createChildren( 2 )  ;
+            c->child[ 0 ]           = createNode( NT_VAR ) ;
+            c->child[ 0 ]->typeVar  = $1->typeVar          ;
+            c->child[ 0 ]->name     = $2                   ;
+            c->child[ 1 ]           = $4                   ;
+            $3 = nodeChildren( $3 , c ) ;
+
+
+            /* Ajout des instruction dans la liste d'instruction */
+
+            c->child[ 0 ] = $1                        ; 
+            c->child[ 1 ] = createNode( NT_LISTINST ) ;
+            $$            = nodeChildren( $$ , c )    ;
+
+            c->child[ 0 ]            = $3                                           ;
+            c->child[ 1 ]            = createNode( NT_EMPTY )                       ;
+            $$->children->child[ 1 ] = nodeChildren( $$->children->child[ 1 ] , c ) ;
+
+            freeChildren( c ) ;
+
+
+            /* Enregistrement de la déclaration */
+
+            logStatement( memory , $2 , $1->typeVar ) ;
         }  
     ;
 
 SetLine:
-        Set EOL {}
+        Set EOL { $$ = $1 ; }
     ;
 
 Set:
         NAME SET Expr {
 
-            if( searchVar( $1 , memory ) )
-                ;
+            int * indexs ;
+
+            if( ( indexs = searchVar( $1 , memory ) ) != NULL ) {
+
+                if( memory->stack[ indexs[ 0 ] ].v[ indexs[ 1 ] ]->type != $3->typeExpr ) {
+
+                    printf("Erreur: incompatibilitée de type\n");
+                    printf("Affectation de la variable %s impossible\n", $1 );
+                    
+                    return 1 ;
+                }
+
+                Children * c = createChildren( 2 ) ;
+
+                c->child[ 0 ] = createNode( NT_VAR ) ;
+                c->child[ 0 ]->typeVar = memory->stack[ indexs[ 0 ] ].v[ indexs[ 1 ] ]->type ;
+                
+                switch( c->child[ 0 ]->typeVar ) {
+                    
+                    case NT_REAL :
+                            c->child[ 0 ]->real = memory->stack[ indexs[ 0 ] ].v[ indexs[ 1 ] ]->val ;
+                        break ;
+                    
+                    case NT_BOOL :
+                            c->child[ 0 ]->boolean = memory->stack[ indexs[ 0 ] ].v[ indexs[ 1 ] ]->boolean ;
+                        break ;
+                    
+                    case NT_STRING :
+                            c->child[ 0 ]->string = memory->stack[ indexs[ 0 ] ].v[ indexs[ 1 ] ]->str ;
+                        break ;
+                    
+                    default :
+                        printf("Erreur de programmation: yack Set: avec typeVar == %i\n", c->child[ 0 ]->typeVar );
+                        return 1 ;
+                }
+                
+                c->child[ 1 ] = $3 ;
+
+                $$ = nodeChildren( $2 , c ) ;
+
+                freeChildren( c ) ;
+
+                free( indexs ) ;
+            }
+
             else {
 
                 printf( "Variable %s non définie\n", $1 ) ;
@@ -305,17 +470,9 @@ ListParam:
     ;
 
 Bloc:
-        If      EOL {
-
-        }
-
-    |   While   EOL {
-
-        }
-
-    |   For     EOL {
-
-        }
+        If      EOL { $$ = $1 ; }
+    |   While   EOL { $$ = $1 ; }
+    |   For     EOL { $$ = $1 ; }
     ;
 
 If:
@@ -330,6 +487,8 @@ If:
             $1->children->child[ 1 ]->children->child[ 0 ] = $2 ;
 
             $$ = $1 ;
+
+            setContainer( $$->children->child[ 1 ] ) ;
 
         }
 
@@ -346,6 +505,9 @@ If:
 
             $$ = $1 ;
 
+            setContainer( $$->children->child[ 1 ] ) ;
+            setContainer( $$->children->child[ 2 ] ) ;
+
         }
     ;
 
@@ -359,7 +521,6 @@ Bif:
             $$ = nodeChildren( $1 , c );
 
             freeChildren( c ) ;
-
         }
     ;
 
@@ -369,12 +530,14 @@ BoolExpr:
     ;
 
 BoolExprMore:  
-        BoolCondition                           {
+        
+        BoolCondition   {
 
             $$ = $1 ;
 
         }
-    |   NOT     BoolExprInvoke                  {
+
+    |   NOT BoolExprInvoke  {
 
             Children * c = createChildren( 1 ) ;
 
@@ -383,8 +546,8 @@ BoolExprMore:
             $$ = nodeChildren( $1 , c ) ;
 
             freeChildren( c ) ;
-
         }
+
     |   BoolExprInvoke  OR    BoolExprInvoke    {
 
             Children * c = createChildren( 2 ) ;
@@ -395,7 +558,7 @@ BoolExprMore:
             $$ = nodeChildren( $2 , c ) ;
 
             freeChildren( c ) ;
-    }
+        }
 
     |   BoolExprInvoke  AND   BoolExprInvoke    {
 
@@ -407,8 +570,7 @@ BoolExprMore:
             $$ = nodeChildren( $2 , c ) ;
 
             freeChildren( c ) ;
-    }
-
+        }
     ;
 
 BoolExprInvoke:
@@ -418,13 +580,9 @@ BoolExprInvoke:
 
 BoolCondition:
         
-        EqualCondition             { 
+        EqualCondition { $$ = $1 ; }
 
-            $$ = $1 ;
-
-        }
-
-    |   ArthExpr    GT    ArthExpr { 
+    |   ArthExprInvoke    GT    ArthExprInvoke { 
 
             Children * c = createChildren( 2 ) ;
 
@@ -434,10 +592,9 @@ BoolCondition:
             $$ = nodeChildren( $2 , c ) ;
 
             freeChildren( c ) ;
-
         }
 
-    |   ArthExpr    GE    ArthExpr { 
+    |   ArthExprInvoke    GE    ArthExprInvoke { 
 
             Children * c = createChildren( 2 ) ;
 
@@ -447,10 +604,9 @@ BoolCondition:
             $$ = nodeChildren( $2 , c ) ;
 
             freeChildren( c ) ;
-
         }
 
-    |   ArthExpr    LT    ArthExpr { 
+    |   ArthExprInvoke    LT    ArthExprInvoke { 
 
             Children * c = createChildren( 2 ) ;
 
@@ -460,10 +616,9 @@ BoolCondition:
             $$ = nodeChildren( $2 , c ) ;
 
             freeChildren( c ) ;
-
         }
 
-    |   ArthExpr    LE    ArthExpr { 
+    |   ArthExprInvoke    LE    ArthExprInvoke { 
 
             Children * c = createChildren( 2 ) ;
 
@@ -473,7 +628,6 @@ BoolCondition:
             $$ = nodeChildren( $2 , c ) ;
 
             freeChildren( c ) ;
-
         }
 
     ;
@@ -490,7 +644,6 @@ EqualCondition:
             $$ = nodeChildren( $2 , c ) ;
 
             freeChildren( c ) ;
-
         }
 
     |   Operand NE Operand  {
@@ -503,7 +656,6 @@ EqualCondition:
             $$ = nodeChildren( $2 , c ) ;
 
             freeChildren( c ) ;
-
         }
     ;
 
@@ -518,13 +670,27 @@ Operand:
 While:
         Bwhile Content END { 
 
+            $1->children->child[ 1 ] = $2 ;
+            $$ = $1 ;
 
+            setContainer( $$ ) ;
         
         }
     ;
 
 Bwhile:
-        WHILE LP BoolExprInvoke RP EOL {}
+        
+        WHILE LP BoolExprInvoke RP EOL {
+
+            Children * c = createChildren( 2 ) ;
+
+            c->child[ 0 ] = $3 ;
+            c->child[ 1 ] = NULL ;
+
+            $$ = nodeChildren( $1 , c ) ;
+
+            freeChildren( c ) ;
+        }
     ;
 
 
@@ -533,6 +699,8 @@ For:
 
             $1->children->child[ 3 ] = $2 ;
             $$ = $1 ;
+
+            setContainer( $$ ) ;
         
         }
     ;
@@ -550,24 +718,20 @@ Bfor:
             $$ = nodeChildren( $1 , c ) ;
 
             freeChildren( c ) ;
-
         }
     ;
 
 InstsList:
        
         { $$ = createNode( NT_EMPTY ) ; }
-    
-    |   IList { 
-            $$ = $1 ;
-        }
-    
+
+    |   IList { $$ = $1 ; }
     ;
 
 IList:
         Set VIRGUL IList    {
 
-            $$ = createNode( NT_INSTLIST ) ;
+            $$ = createNode( NT_LISTINST ) ;
             
             Children * c = createChildren( 2 ) ;
             c->child[ 0 ] = $1 ;
@@ -576,12 +740,11 @@ IList:
             $$ = nodeChildren( $$ , c ) ;
 
             freeChildren( c ) ;
-
         }
 
     |   Call VIRGUL IList   {
 
-            $$ = createNode( NT_INSTLIST ) ;
+            $$ = createNode( NT_LISTINST ) ;
             
             Children * c = createChildren( 2 ) ;
             c->child[ 0 ] = $1 ;
@@ -590,11 +753,10 @@ IList:
             $$ = nodeChildren( $$ , c ) ;
 
             freeChildren( c ) ;
-
         }
     
     |   Set                 { 
-            $$ = createNode( NT_INSTLIST ) ;
+            $$ = createNode( NT_LISTINST ) ;
             
             Children * c = createChildren( 2 ) ;
             c->child[ 0 ] = $1 ;
@@ -607,7 +769,7 @@ IList:
 
     |   Call                {
             
-            $$ = createNode( NT_INSTLIST ) ;
+            $$ = createNode( NT_LISTINST ) ;
             
             Children * c = createChildren( 2 ) ;
             c->child[ 0 ] = $1 ;
@@ -622,21 +784,20 @@ IList:
 Expr:
         ArthExpr    { 
             
-            $1->typeExpr = NT_REAL ;
-            $$ = $1 ; 
-        
+            $1->typeExpr = T_REAL ;
+            $$ = $1 ;        
         }
 
     |   BoolExpr    { 
         
-            $1->typeExpr = NT_BOOL ;
+            $1->typeExpr = T_BOOL ;
             $$ = $1 ; 
         
         }
 
     |   Conc        { 
         
-            $1->typeExpr = NT_STRING ;
+            $1->typeExpr = T_STRING ;
             $$ = $1 ;
         
         }
@@ -828,7 +989,6 @@ Conc:
             $$ = nodeChildren( $2 , c );
 
             freeChildren( c ) ;
-
         }
     ;
 
@@ -848,8 +1008,9 @@ void yyerror( char * s ) {
 
 int main( int argc, char **argv ) {
 
-    if ( ( argc == 3 ) && ( strcmp( argv[ 1 ] , "-f" ) == 0 ) ) {
+    if ( ( argc == 4 ) && ( strcmp( argv[ 1 ] , "-f" ) == 0 ) ) {
     
+        yydebug = atoi( argv[ 3 ] ) ;
 
         FILE * fp = fopen( argv[ 2 ] , "r" );
 

@@ -95,8 +95,7 @@ void logStatement( Stack * mem , char * name , int type) {
 
     mem->stack[ mem->top ].v[ i ]->name = copyString( name , 0 ) ;
 
-    mem->stack[ mem->top ].v[ i ]->type = type ;
-
+    mem->stack[ mem->top ].v[ i ]->type = type ;    
 }
 
 
@@ -111,12 +110,8 @@ void freeBloc( Stack * mem ) {
 
     }
 
-    free( &( mem->stack ) + mem->top ) ;
-    *( &( mem->stack ) + mem->top ) = NULL ;
-
     mem->stack = ( Variables * ) realloc( mem->stack , sizeof( Variables ) * mem->top ) ;
     mem->top-- ;
-
 }
 
 
@@ -137,6 +132,25 @@ void initMemory( Stack ** mem ) {
 
 }
 
+void setContainer( Node * parent ) {
+
+    Node * inst = parent ;
+
+    if( inst->type != NT_EMPTY ) {
+
+        inst->children->child[ inst->children->number - 1 ]->container = parent ;
+        inst = inst->children->child[ inst->children->number - 1 ] ;
+
+        while( inst->type != NT_EMPTY ) {
+
+            inst->children->child[ 0 ]->container = parent ;
+            inst = inst->children->child[ 1 ] ;
+
+        }
+    }
+}
+
+
 void printMemory( Stack * mem ) {
     
     if(! mem || ! mem->stack) {
@@ -156,8 +170,6 @@ void printMemory( Stack * mem ) {
 
     }
 }
-
-
 
 
 

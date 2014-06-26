@@ -91,6 +91,14 @@ bool executeTree( Node * node ) {
 	
 	switch( node->type ) {
 
+		/* Fonction */
+		case NT_FUNCTION :
+
+				if( executeTree( node->children->child[ 1 ] ) == false )
+					return false ;
+
+			break ;
+
 		/* Noeud Vide */
 
 		case NT_EMPTY :
@@ -167,16 +175,12 @@ bool executeTree( Node * node ) {
 		case NT_DEC :
 
 				createVariable( node ) ;
-				
-				if( executeTree( node->children->child[ 0 ] ) == false )
-					return false ; 
-				/* Si il c'est juste une une déclaration child[ 0 ] est de type NT_EMPTY */
 
 			break ;
 
 		case NT_SET :
 
-				if( node->typeExpr != node->children->child[ 0 ]->typeVar ) {
+				if( node->children->child[ 1 ]->typeExpr != node->children->child[ 0 ]->typeVar ) {
 					printf( "Erreur sementique du code\n" );
 					return false ;
 				}

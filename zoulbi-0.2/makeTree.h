@@ -29,10 +29,11 @@ typedef enum NodeType {
     /***************************/
         
         NT_LISTINST   = 200 ,    // liste d'instructions
-        NT_BOOLEXP    = 201 ,    // Expression booléenne
-        NT_ARTHEXP    = 202 ,    // Expression arithmétique
-        NT_CALLPARAM  = 203 ,    // liste de paramètres (appel)
-        NT_IFELSE     = 204 ,    // Noeud qui contient deux enfants: la liste d'instructions du if et potentiellement celle du else
+        NT_LISTEXPR   = 201 ,    // liste d'expression
+        NT_BOOLEXP    = 202 ,    // Expression booléenne
+        NT_ARTHEXP    = 203 ,    // Expression arithmétique
+        NT_CALLPARAM  = 204 ,    // liste de paramètres (appel)
+        NT_IFELSE     = 205 ,    // Noeud qui contient deux enfants: la liste d'instructions du if et potentiellement celle du else
 
     /***************************/
     /* Opérateurs arithmétique */
@@ -197,7 +198,8 @@ void        addMemoryBloc( Stack    *                         ) ;
 void          printMemory( Stack    *                         ) ;
 void           initMemory( Stack    **                        ) ;
 Children * createChildren( int                                ) ;
-void         freeChildren( Children * c                       ) ;
+void         freeChildren( Children *                         ) ;
+void         setContainer( Node *                             ) ;
 
 
 
