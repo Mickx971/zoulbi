@@ -187,16 +187,17 @@ typedef struct Function {
 
 
 
-Node     *     createNode( int                             ) ;
-Node     *   nodeChildren( Node  *  ,  Children *          ) ;
-char     *     copyString( char  *  ,  int                 ) ;
-int      *      searchVar( char  *  ,  Stack    *          ) ;
-void         logStatement( Stack *  ,  char     *  ,  int  ) ;
-void             freeBloc( Stack *                         ) ;
-void        addMemoryBloc( Stack *                         ) ;
-void          printMemory( Stack *                         ) ;
-void           initMemory( Stack **                        ) ;
-Children * createChildren( int                             ) ;
+Node     *     createNode( int                                ) ;
+Node     *   nodeChildren( Node     *  ,  Children *          ) ;
+char     *     copyString( char     *  ,  int                 ) ;
+int      *      searchVar( char     *  ,  Stack    *          ) ;
+void         logStatement( Stack    *  ,  char     *  ,  int  ) ;
+void             freeBloc( Stack    *                         ) ;
+void        addMemoryBloc( Stack    *                         ) ;
+void          printMemory( Stack    *                         ) ;
+void           initMemory( Stack    **                        ) ;
+Children * createChildren( int                                ) ;
+void         freeChildren( Children * c                       ) ;
 
 
 

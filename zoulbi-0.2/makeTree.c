@@ -29,6 +29,13 @@ Node * nodeChildren( Node * father, Children * c ) {
 }
 
 
+void freeChildren( Children * c ) {
+    free( c->child ) ;
+    free( c ) ;
+    c = NULL ; 
+}
+
+
 Children * createChildren( int nb ) {
  
     Children * c  = ( Children * ) malloc( sizeof( Children ) ) ;

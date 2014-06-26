@@ -358,6 +358,8 @@ Bif:
 
             $$ = nodeChildren( $1 , c );
 
+            freeChildren( c ) ;
+
         }
     ;
 
@@ -437,10 +439,28 @@ IList:
     ;
 
 Expr:
-        ArthExpr    {  }
-    |   BoolExpr    {  }
-    |   Conc        {  }
-    |   Invoke      {  }
+        ArthExpr    { 
+            
+            $1->typeExpr = NT_REAL ;
+            $$ = $1 ; 
+        
+        }
+
+    |   BoolExpr    { 
+        
+            $1->typeExpr = NT_BOOL ;
+            $$ = $1 ; 
+        
+        }
+
+    |   Conc        { 
+        
+            $1->typeExpr = NT_STRING ;
+            $$ = $1 ;
+        
+        }
+        
+    |   Invoke      { $$ = $1 ; }
     ;
 
 Invoke:
@@ -460,56 +480,137 @@ Invoke:
     ;
 
 ArthExpr:
-        REAL        {}          
-    |   ArthExpr1   {}
-    |   ArthExpr2   {}
-    |   ArthExpr3   {}
-    |   ArthExpr4   {}
+        REAL        { $$ = $1 ; }          
+    |   ArthExpr1   { $$ = $1 ; }
+    |   ArthExpr2   { $$ = $1 ; }
+    |   ArthExpr3   { $$ = $1 ; }
+    |   ArthExpr4   { $$ = $1 ; }
     ;
 
 ArthExpr1:
-        ArthExprInvoke  PLUS    ArthExprInvoke {}
-    |   ArthExprInvoke  MINUS   ArthExprInvoke {}
+        ArthExprInvoke  PLUS    ArthExprInvoke {
+
+            Children * c = createChildren( 2 );
+
+            c->child[ 0 ] = $1 ;
+            c->child[ 1 ] = $3 ;
+
+            $$ = nodeChildren( $2 , c ) ;
+
+            freeChildren( c );
+        }
+
+
+    |   ArthExprInvoke  MINUS   ArthExprInvoke {
+
+            Children * c = createChildren( 2 );
+
+            c->child[ 0 ] = $1 ;
+            c->child[ 1 ] = $3 ;
+
+            $$ = nodeChildren( $2 , c ) ;
+
+            freeChildren( c );
+
+        }
     ;
 
 ArthExpr2:
-        ArthExpr6   MULT    ArthExpr6 {}
-    |   ArthExpr6   MOD     ArthExpr6 {}
-    |   ArthExpr6   DIV     ArthExpr6 {}
+        ArthExpr6   MULT    ArthExpr6 {
+
+            Children * c = createChildren( 2 );
+
+            c->child[ 0 ] = $1 ;
+            c->child[ 1 ] = $3 ;
+
+            $$ = nodeChildren( $2 , c ) ;
+
+            freeChildren( c );
+
+        }
+
+
+    |   ArthExpr6   MOD     ArthExpr6 {
+
+            Children * c = createChildren( 2 );
+
+            c->child[ 0 ] = $1 ;
+            c->child[ 1 ] = $3 ;
+
+            $$ = nodeChildren( $2 , c ) ;
+
+            freeChildren( c );
+
+        }
+
+
+    |   ArthExpr6   DIV     ArthExpr6 {
+
+            Children * c = createChildren( 2 );
+
+            c->child[ 0 ] = $1 ;
+            c->child[ 1 ] = $3 ;
+
+            $$ = nodeChildren( $2 , c ) ;
+
+            freeChildren( c );
+
+        }
     ;
 
 ArthExpr3:
-        MINUS ArthExpr7 %prec NEG {}
+        MINUS ArthExpr7 %prec NEG {
+
+            Children * c = createChildren( 2 ) ;
+
+            c->child[ 1 ] = $2 ;
+            c->child[ 0 ] = createNode( NT_REAL ) ;
+            c->child[ 0 ]->real = 0 ;
+
+            $$ = nodeChildren( $1 , c );
+
+            freeChildren( c );
+        }
     ;
 
 ArthExpr4:
-        ArthExpr8 POW ArthExpr9 {}
+        ArthExpr8 POW ArthExpr9 {
+
+            Children * c = createChildren( 2 ) ;
+
+            c->child[ 0 ] = $1;
+            c->child[ 1 ] = $3;
+
+            $$ = nodeChildren( $2 , c );
+
+            freeChildren( c );
+        }
     ;
 
 ArthExprInvoke:
-        ArthExpr    {}
-    |   Invoke      {}
+        ArthExpr    { $$ = $1 ; }
+    |   Invoke      { $$ = $1 ; }
     ;
 
 ArthExpr6:
-        ArthExpr2   {}
-    |   ArthExpr3   {}
-    |   ArthExpr10  {}
+        ArthExpr2   { $$ = $1 ; }
+    |   ArthExpr3   { $$ = $1 ; }
+    |   ArthExpr10  { $$ = $1 ; }
     ;
 
 ArthExpr7:
-        LP ArthExpr3 RP {}
-    |   ArthExpr10      {}
+        LP ArthExpr3 RP { $$ = $2 ; }
+    |   ArthExpr10      { $$ = $1 ; }
     ;
 
 ArthExpr8:
-        ArthExpr11      {}
-    |   LP ArthExpr3 RP {}
+        ArthExpr11      { $$ = $1 ;}
+    |   LP ArthExpr3 RP { $$ = $2 ;}
     ;
 
 ArthExpr9:
-        ArthExpr11  {}
-    |   ArthExpr3   {}
+        ArthExpr11  { $$ = $1 ; }
+    |   ArthExpr3   { $$ = $1 ; }
     ;
 
 ArthExpr10:
@@ -545,7 +646,7 @@ Conc:
 
             $$ = nodeChildren( $2 , c );
 
-            free( c ) ;
+            freeChildren( c ) ;
 
         }
     ;

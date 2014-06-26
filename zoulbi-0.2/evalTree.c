@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "makeTree.h"
 #include "evalTree.h"
 
@@ -34,10 +35,52 @@ bool evalBoolExpr( Node * node ) {
 
 
 
-char * evalConc( Node * node ) {
+bool evalConc( Node * node , char ** string ) {
 
-	return NULL ;
+	char * strings[ 2 ] ;
+	Node * child[ 2 ] ;
+	child[ 0 ] = node->children->child[ 0 ] ;
+	child[ 1 ] = node->children->child[ 1 ] ;
 
+	int i ;
+
+	for( i = 0; i < 2 ; i++ ) {
+	
+		switch( child[ i ]->type ) {
+
+			case NT_STRING :
+			
+					strings[ i ] = copyString( child[ i ]->string , 0 ) ;
+			
+				break ;
+
+			case NT_CONC   :
+
+					if( evalConc( child[ i ] , &strings[ i ] ) == false )
+						return false ;
+			
+				break ;
+
+			case NT_VAR    :
+				break ;
+			
+			case NT_CALL   :
+				break ;
+
+			default : 
+				printf("Erreur de programmation: appel de evalConc avec type = %i\n", child[ i ]->type ) ;
+				return false ;
+		}
+	}
+	
+	*string = ( char * ) malloc( sizeof( char ) * ( strlen( strings[ 0 ] ) + strlen( strings[ 1 ] ) ) ) ; 
+	strcpy( *string , strings[ 0 ] ) ;
+	strcpy( *string + strlen( strings[ 0 ] ) , strings[ 1 ] ) ;
+
+	free( strings[ 0 ] ) ;
+	free( strings[ 1 ] ) ; 
+
+	return true ;
 }
 
 
@@ -60,6 +103,7 @@ bool executeTree( Node * node ) {
 			
 				if( executeTree( node->children->child[ 0 ] ) == false )
 					return false ;
+
 				if( executeTree( node->children->child[ 1 ] ) == false )
 					return false ;
 				
@@ -163,7 +207,8 @@ bool executeTree( Node * node ) {
 
     				case T_STRING :
 
-    						node->children->child[ 0 ]->string = evalConc( node->children->child[ 1 ] ) ;
+    						if( false == evalConc( node->children->child[ 1 ] , &( node->children->child[ 0 ]->string ) ) )
+    							return false ;
     					
     					break ;
 
@@ -178,7 +223,7 @@ bool executeTree( Node * node ) {
 		/* Appel de fonction (la seule opération de la ligne) */
 
 		case NT_CALL :
-
+			break;
 
 
 		/* Instruction return */
