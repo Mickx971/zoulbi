@@ -132,22 +132,108 @@ void initMemory( Stack ** mem ) {
 
 }
 
-void setContainer( Node * parent ) {
+void setContainer( Node * node ) {
 
-    Node * inst = parent ;
-
-    if( inst->type != NT_EMPTY ) {
-
-        inst->children->child[ inst->children->number - 1 ]->container = parent ;
-        inst = inst->children->child[ inst->children->number - 1 ] ;
-
-        while( inst->type != NT_EMPTY ) {
-
-            inst->children->child[ 0 ]->container = parent ;
-            inst = inst->children->child[ 1 ] ;
-
-        }
+    if( node == NULL ) {
+        printf("Erreur de programe: appel de setContainer avec node == NULL\n");
+        return ;
     }
+
+    Node * inst ;
+
+    int i , number ;
+
+    switch( node->type ) {
+
+        case NT_FUNCTION  :
+        case NT_IF        :
+        case NT_ELSE      :
+
+                setContainer( node->children->child[ node->children->number - 1 ] ) ;
+            
+            break ;
+
+        case NT_IFELSE    :
+        case NT_WHILE     :
+        case NT_FOR       :
+
+                number = node->children->number ;
+
+                for( i = 0 ; i < number ; i++ ) {
+
+                    node->children->child[ i ]->container = node ;
+
+                    setContainer( node->children->child[ i ] ) ;
+
+                }
+
+            break ;
+
+        case NT_LISTINST :
+
+                inst = node ;
+
+                while( inst->type != NT_EMPTY ) {
+
+                    inst->children->child[ 0 ]->container = node->container ;
+
+                    setContainer( inst->children->child[ 0 ] ) ;
+
+                    inst = inst->children->child[ 1 ] ;
+
+                }
+
+            break ;
+
+        case NT_PLUS      :
+        case NT_MINUS     :
+        case NT_MULT      :
+        case NT_DIV       :
+        case NT_MOD       :
+        case NT_POW       :
+        case NT_CONC      :
+        case NT_NOT       :
+        case NT_OR        :
+        case NT_AND       :
+        case NT_LT        :
+        case NT_LE        :
+        case NT_GT        :
+        case NT_GE        :
+        case NT_EQ        :
+        case NT_NE        :
+        case NT_BOOLEXP   :
+        case NT_ARTHEXP   :
+        case NT_CONCEXP   :
+        case NT_SET       :
+        case NT_CALL      :
+        case NT_CALLPARAM :
+        case NT_RETURN    :
+
+                number = node->children->number ;
+
+                for( i = 0 ; i < number ; i++ ) {
+
+                    node->children->child[ i ]->container = node->container ;
+
+                    setContainer( node->children->child[ i ] ) ;
+
+                }
+
+            break ;
+
+        case NT_DEC       :
+        case NT_VAR       :
+        case NT_BOOL      :
+        case NT_STRING    :
+        case NT_REAL      :
+        case NT_EMPTY     :
+            break ;
+
+        default :
+            printf("Erreur de programe: appel de setContainer avec node->type == %i\n", node->type );
+            return ;
+    }
+
 }
 
 
@@ -172,7 +258,23 @@ void printMemory( Stack * mem ) {
 }
 
 
+// void setContainer( Node * parent ) {
 
+//     Node * inst = parent ;
+
+//     if( inst->type != NT_EMPTY ) {
+
+//         inst->children->child[ inst->children->number - 1 ]->container = parent ;
+//         inst = inst->children->child[ inst->children->number - 1 ] ;
+
+//         while( inst->type != NT_EMPTY ) {
+
+//             inst->children->child[ 0 ]->container = parent ;
+//             inst = inst->children->child[ 1 ] ;
+
+//         }
+//     }
+// }
 
 
 

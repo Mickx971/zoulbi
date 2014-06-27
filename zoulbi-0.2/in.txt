@@ -1,3 +1,18 @@
 void main()
     real a = 2
+
+    if( a > 2 )
+    	print( "coucou" )
+    else
+    	print( "Pas coucou" )
+    end
+
+    while( a >= 0 )
+    	real i
+    	for( i = 0 ; i < a ; i = i + 1 )
+    		print( i )
+    	end
+    	a = a - 1
+    end
+    
 end

@@ -488,8 +488,6 @@ If:
 
             $$ = $1 ;
 
-            setContainer( $$->children->child[ 1 ] ) ;
-
         }
 
     |   Bif Content ELSE Content END { 
@@ -504,9 +502,6 @@ If:
             $1->children->child[ 2 ]->children->child[ 0 ] = $4 ;
 
             $$ = $1 ;
-
-            setContainer( $$->children->child[ 1 ] ) ;
-            setContainer( $$->children->child[ 2 ] ) ;
 
         }
     ;
@@ -672,8 +667,6 @@ While:
 
             $1->children->child[ 1 ] = $2 ;
             $$ = $1 ;
-
-            setContainer( $$ ) ;
         
         }
     ;
@@ -699,8 +692,6 @@ For:
 
             $1->children->child[ 3 ] = $2 ;
             $$ = $1 ;
-
-            setContainer( $$ ) ;
         
         }
     ;
@@ -782,27 +773,62 @@ IList:
     ;
 
 Expr:
-        ArthExpr    { 
-            
-            $1->typeExpr = T_REAL ;
-            $$ = $1 ;        
+        ArthExpr    {
+
+            $$ = createNode( NT_ARTHEXP );
+            $$->children = createChildren( 1 ) ;
+            $$->children->child[ 0 ] = $1 ;
+            $$->typeExpr = T_REAL ; 
+                 
         }
 
-    |   BoolExpr    { 
-        
-            $1->typeExpr = T_BOOL ;
-            $$ = $1 ; 
+    |   BoolExpr    {
+
+            $$ = createNode( NT_BOOLEXP );
+            $$->children = createChildren( 1 ) ;
+            $$->children->child[ 0 ] = $1 ;
+            $$->typeExpr = T_BOOL ;
         
         }
 
-    |   Conc        { 
-        
-            $1->typeExpr = T_STRING ;
-            $$ = $1 ;
+    |   Conc        {
+
+            $$ = createNode( NT_CONCEXP );
+            $$->children = createChildren( 1 ) ;
+            $$->children->child[ 0 ] = $1 ;
+            $$->typeExpr = T_STRING ; 
         
         }
 
-    |   Invoke      { $$ = $1 ; }
+    |   Invoke      {
+
+            switch( $1->typeVar ) {
+
+                case T_STRING :
+                        $$ = createNode( NT_CONCEXP );
+                        $$->typeExpr = T_STRING ;
+                    break ;
+
+                case T_BOOL   :
+                        $$ = createNode( NT_BOOLEXP );
+                        $$->typeExpr = T_BOOL ;
+                    break ;
+
+                case T_REAL   :
+                        $$ = createNode( NT_ARTHEXP );
+                        $$->typeExpr = T_REAL ;
+                    break ;
+
+                default :
+                    printf("Erreur de programmation: Invoke type inconnu = %i\n", $1->typeVar );
+                    return 1 ;
+
+            }
+
+            $$->children = createChildren( 1 ) ;
+            $$->children->child[ 0 ] = $1 ;
+
+        }
     ;
 
 Invoke:
@@ -1008,9 +1034,12 @@ void yyerror( char * s ) {
 
 int main( int argc, char **argv ) {
 
-    if ( ( argc == 4 ) && ( strcmp( argv[ 1 ] , "-f" ) == 0 ) ) {
+    if ( ( argc >= 3 ) && ( strcmp( argv[ 1 ] , "-f" ) == 0 ) ) {
     
-        yydebug = atoi( argv[ 3 ] ) ;
+        if ( argc == 3 )
+            yydebug = 0 ;
+        else
+            yydebug = atoi( argv[ 3 ] ) ;
 
         FILE * fp = fopen( argv[ 2 ] , "r" );
 

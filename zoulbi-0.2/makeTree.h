@@ -29,7 +29,7 @@ typedef enum NodeType {
     /***************************/
         
         NT_LISTINST   = 200 ,    // liste d'instructions
-        NT_LISTEXPR   = 201 ,    // liste d'expression
+        NT_CONCEXP    = 201 ,    // Expresion de concaténation
         NT_BOOLEXP    = 202 ,    // Expression booléenne
         NT_ARTHEXP    = 203 ,    // Expression arithmétique
         NT_CALLPARAM  = 204 ,    // liste de paramètres (appel)
@@ -162,12 +162,10 @@ typedef struct Node {
     double   real     ;
     
     bool     boolean  ;
-
-    union{
-        
+    
+    union {
         Type    typeVar  ;
         Type    typeExpr ;
-    
     } ;
 
     Stack *  memory   ;
