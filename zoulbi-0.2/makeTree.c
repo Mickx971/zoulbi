@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "makeTree.h"
+#include "utils.h"
 
 
 Node * createNode( int type ) {
@@ -24,6 +25,8 @@ Node * nodeChildren( Node * father, Children * c ) {
     
     for( i = 0 ; i < c->number ; i++ )
         father->children->child[ i ] = c->child[ i ] ;
+
+    father->children->number = c->number ;
 
     return father ;
 }
@@ -132,7 +135,22 @@ void initMemory( Stack ** mem ) {
 
 }
 
+void printTypef( int f , int s ) {
+
+    printf("Set container ");
+    printType( f , 0 ) ;
+    printf( " for " ) ;
+    printType( s , 1 ) ;
+
+}
+
 void setContainer( Node * node ) {
+
+#ifdef PRINT
+    printf("In set container for ");
+    printType(node->type,1);
+    printf("\n");
+#endif
 
     if( node == NULL ) {
         printf("Erreur de programe: appel de setContainer avec node == NULL\n");
@@ -149,23 +167,45 @@ void setContainer( Node * node ) {
         case NT_IF        :
         case NT_ELSE      :
 
-                setContainer( node->children->child[ node->children->number - 1 ] ) ;
-            
-            break ;
-
-        case NT_IFELSE    :
-        case NT_WHILE     :
-        case NT_FOR       :
-
                 number = node->children->number ;
 
                 for( i = 0 ; i < number ; i++ ) {
 
+#ifdef PRINT
+                    printTypef( node->type ,  node->children->child[ i ]->type ) ;
+#endif
                     node->children->child[ i ]->container = node ;
 
                     setContainer( node->children->child[ i ] ) ;
 
                 }
+
+            break ;
+
+        case NT_WHILE     :
+        case NT_FOR       :
+
+
+
+                number = node->children->number ;
+
+                for( i = 0 ; i < number - 1 ; i++ ) {
+
+#ifdef PRINT
+                    printTypef( node->container->type ,  node->children->child[ i ]->type ) ;
+#endif
+                    node->children->child[ i ]->container = node->container ;
+
+                    setContainer( node->children->child[ i ] ) ;
+
+                }
+
+#ifdef PRINT
+                printTypef( node->type ,  node->children->child[ i ]->type ) ;
+#endif
+                node->children->child[ i ]->container = node ;                
+                
+                setContainer( node->children->child[ i ] ) ;
 
             break ;
 
@@ -175,7 +215,11 @@ void setContainer( Node * node ) {
 
                 while( inst->type != NT_EMPTY ) {
 
+#ifdef PRINT
+                    printTypef( node->container->type ,  inst->children->child[ 0 ]->type ) ;
+#endif
                     inst->children->child[ 0 ]->container = node->container ;
+                    inst->children->child[ 1 ]->container = node->container ;
 
                     setContainer( inst->children->child[ 0 ] ) ;
 
@@ -208,11 +252,15 @@ void setContainer( Node * node ) {
         case NT_CALL      :
         case NT_CALLPARAM :
         case NT_RETURN    :
+        case NT_IFELSE    :
 
                 number = node->children->number ;
 
                 for( i = 0 ; i < number ; i++ ) {
 
+#ifdef PRINT
+                    printTypef( node->container->type , node->children->child[ i ]->type ) ;
+#endif
                     node->children->child[ i ]->container = node->container ;
 
                     setContainer( node->children->child[ i ] ) ;

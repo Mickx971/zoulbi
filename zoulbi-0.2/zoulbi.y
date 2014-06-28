@@ -189,8 +189,8 @@ Prot:
     ;
 
 ListArgOrEmpty:
-        {}
-    |   ListArg {}
+        { $$ = createNode( NT_EMPTY ) ; }
+    |   ListArg { $$ = createNode( NT_EMPTY ) ; }
     ;
 
 ListArg:
@@ -1092,8 +1092,6 @@ int main( int argc, char **argv ) {
 
         initMemory( &memory ) ;
 
-        printf( "Début du parsing\n\n" );
-
         if( yyparse() == 1 ) {
             
             printf( "Echec du parsing\n" );
@@ -1104,7 +1102,8 @@ int main( int argc, char **argv ) {
         }
         else {
          
-            printf( "Fichier correct\n" );
+            printf( "\nFichier correct\n" );
+            printf( "Execution ... \n\n" );
             executeTree( root ) ;
 
         }

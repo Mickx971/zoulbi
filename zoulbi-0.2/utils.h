@@ -1,1 +1,1 @@
-void printType( int ) ;
+void printType( int , int ) ;

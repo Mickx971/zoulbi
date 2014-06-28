@@ -1,4 +1,4 @@
-void main()
+real main()
     
     real a = 2
 

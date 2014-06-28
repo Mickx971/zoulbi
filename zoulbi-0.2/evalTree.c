@@ -15,7 +15,13 @@ typedef union result {
 } Result ;
 
 
+
+
 void createVariable( Node * node ) {
+
+	printf("Container de ");
+	printType( node->type , 1 ) ;
+	printf( "%p\n", node->container ) ;
 
 }
 
@@ -30,7 +36,7 @@ double evalArthExpr( Node * node ) {
 
 bool evalBoolExpr( Node * node ) {
 
-	return true ;
+	return false ;
 
 }
 
@@ -90,7 +96,7 @@ bool executeTree( Node * node ) {
 
 	Result result ;
 	
-	printType( node->type ) ;
+	printType( node->type , 1 ) ;
 
 	switch( node->type ) {
 
@@ -175,7 +181,6 @@ bool executeTree( Node * node ) {
 					
 					if( executeTree( node->children->child[ 3 ] ) == false )
 						return false ;
-
 				}
 
 			break ;
