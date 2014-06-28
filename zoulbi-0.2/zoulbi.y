@@ -569,8 +569,24 @@ BoolExprMore:
     ;
 
 BoolExprInvoke:
-        Invoke      { $$ = $1 ; }
-    |   BoolExpr    { $$ = $1 ; }
+
+        Invoke      { 
+            
+            $$ = createNode( NT_BOOLEXP );
+            $$->children = createChildren( 1 ) ;
+            $$->children->child[ 0 ] = $1 ;
+            $$->typeExpr = T_BOOL ;
+        
+        }
+
+    |   BoolExpr    { 
+
+            $$ = createNode( NT_BOOLEXP );
+            $$->children = createChildren( 1 ) ;
+            $$->children->child[ 0 ] = $1 ;
+            $$->typeExpr = T_BOOL ;
+
+        }
     ;
 
 BoolCondition:
@@ -834,10 +850,32 @@ Expr:
 Invoke:
         Call    { $$ = $1 ; }
 
-    |   NAME    { 
+    |   NAME    {
 
-            if( searchVar( $1 , memory ) )
-                ;
+            int * indexs ;
+
+            if( ( indexs = searchVar( $1 , memory ) ) != NULL ) {
+            
+                $$ = createNode( NT_VAR ) ;
+
+                switch( memory->stack[ indexs[ 0 ] ].v[ indexs [ 1 ] ]->type ) {
+
+                    case T_BOOL   :
+                    case T_REAL   :
+                    case T_STRING :
+                            $$->typeVar = memory->stack[ indexs[ 0 ] ].v[ indexs [ 1 ] ]->type ;
+                        break ;
+
+                    default :
+                        printf("Erreur de programmation: switch invoke name: var memory type == %i\n", memory->stack[ indexs[ 0 ] ].v[ indexs [ 1 ] ]->type );
+                        return 1 ;
+                }
+
+                $$->name = $1 ;
+
+                free( indexs ) ;
+            }
+
             else {
 
                 printf( "Undefined variable: %s\n", $1 ) ;

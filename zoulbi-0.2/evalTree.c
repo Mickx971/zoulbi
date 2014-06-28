@@ -3,6 +3,7 @@
 #include <string.h>
 #include "makeTree.h"
 #include "evalTree.h"
+#include "utils.h"
 
 typedef union result {
 
@@ -29,7 +30,7 @@ double evalArthExpr( Node * node ) {
 
 bool evalBoolExpr( Node * node ) {
 
-	return false ;
+	return true ;
 
 }
 
@@ -89,6 +90,8 @@ bool executeTree( Node * node ) {
 
 	Result result ;
 	
+	printType( node->type ) ;
+
 	switch( node->type ) {
 
 		/* Fonction */
@@ -131,13 +134,21 @@ bool executeTree( Node * node ) {
 
 				} else {
 
-					if( executeTree( node->children->child[ 0 ] ) == false )
+					if( executeTree( node->children->child[ 2 ] ) == false )
 						return false ;
 
 				}
 
 			break ;
 
+
+		case NT_IF   :
+		case NT_ELSE :
+
+				if( executeTree( node->children->child[ 0 ] ) == false )
+					return false ;
+
+			break ;
 
 
 		case NT_WHILE :
