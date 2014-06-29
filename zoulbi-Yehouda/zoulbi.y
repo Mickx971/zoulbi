@@ -156,7 +156,7 @@
 
 Input:
                             {}  
-    |   Function            {}
+    |   Function            { $$ = $1 ; }
     |   Function Leol Input {}
     ;
 
@@ -304,7 +304,7 @@ Set:
     ;
 
 CallLine:
-        Call EOL {}
+        Call EOL { $$ = $1; }
     ;
 
 Call:
@@ -553,8 +553,24 @@ InstsList:
     ;
 
 IList:
-        Set VIRGUL IList    {}
-    |   Call VIRGUL IList   {}
+        Set VIRGUL IList    {
+            Children * c = createChildren( 2 ) ;
+
+            c->child[0] = $1 ;
+            c->child[2] = $3 ;
+
+            $$ = nodeChildren( $2, c ) ;
+            free( c ) ;
+        }
+    |   Call VIRGUL IList   {
+            Children * c = createChildren( 2 ) ;
+
+            c->child[0] = $1 ;
+            c->child[2] = $3 ;
+
+            $$ = nodeChildren( $2, c ) ;
+            free( c ) ;
+        }
     |   Set                 { $$ = $1 ; }
     |   Call                { $$ = $1 ; }
     ;
