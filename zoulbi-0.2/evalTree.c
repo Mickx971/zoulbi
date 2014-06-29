@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 #include "makeTree.h"
 #include "evalTree.h"
 #include "utils.h"
@@ -8,7 +9,6 @@
 typedef union result {
 
 	bool 	b ;
-	int 	i ;
 	double 	f ;
 	char *	s ;
 
@@ -16,40 +16,256 @@ typedef union result {
 
 
 
+Variable * callFunction( Node * node ) {
+
+	Variable * var = NULL ;
+
+	return var ;
+
+}
+
+
+Variable * getVar( Node * node ) {
+
+	Variable * var = NULL ;
+
+	return var ;
+
+}
+
+
 
 void createVariable( Node * node ) {
 
-	printf("Container de ");
-	printType( node->type , 1 ) ;
-	printf( "%p\n", node->container ) ;
+	Stack * mem = node->container->memory ; 
 
+	if( mem == NULL ) initMemory( &mem ) ;
+
+	if( mem->top == -1 ) {
+		mem->stack = ( Variables * ) malloc( sizeof( Variables ) ) ;
+		mem->top = 0 ;
+		mem->stack[ 0 ].v = NULL ;
+		mem->stack[ 0 ].top = -1 ;
+	}
+
+	if( mem->stack[ mem->top ].top == -1 )
+		mem->stack[ mem->top ].v   = ( Variable ** ) malloc( sizeof( Variable * ) ) ;
+
+	else
+		mem->stack[ mem->top ].v   = ( Variable ** ) realloc( mem->stack[ mem->top ].v , sizeof( Variable * ) * ( mem->stack[ mem->top ].top + 1 ) ) ;
+	
+	mem->stack[ mem->top ].top++ ;
+
+	Variable * newVar = mem->stack[ mem->top ].v[ mem->stack[ mem->top ].top ] ;
+	
+	newVar = ( Variable * ) malloc( sizeof( Variable ) ) ;
+
+	newVar->type = node->typeVar ;
+
+	newVar->name = node->name ;
+
+	switch( newVar->type ) {
+
+		case T_BOOL   :
+			
+				newVar->boolean = true ;
+
+			break ;
+
+		case T_REAL   :
+			
+				newVar->val = 0.0 ;
+
+			break ;
+
+		case T_STRING :
+			
+				newVar->str = "" ;
+
+			break ;
+
+
+		default:
+			printf("Erreur de programmation: createVariable avec type = %i\n", newVar->type );
+	
+	}
 }
 
 
 double evalArthExpr( Node * node ) {
 
-	return 0.0 ;
+	Variable * var = NULL ;
 
+	if( node->type == NT_ARTHEXP ) node = node->children->child[ 0 ] ;
+
+	switch( node->type ) {
+
+		case NT_PLUS 	:
+			
+				return evalArthExpr( node->children->child[0] ) + evalArthExpr( node->children->child[1] ) ;
+
+			break ;
+
+		case NT_MINUS 	:
+			
+				return evalArthExpr( node->children->child[0] ) - evalArthExpr( node->children->child[1] ) ;
+
+			break ;
+
+		case NT_MULT 	:
+			
+				return evalArthExpr( node->children->child[0] ) * evalArthExpr( node->children->child[1] ) ;
+
+			break ;
+
+		case NT_DIV 	:
+			
+				return evalArthExpr( node->children->child[0] ) / evalArthExpr( node->children->child[1] ) ;
+
+			break ;
+
+		case NT_MOD 	:
+			
+				return ( (int) evalArthExpr( node->children->child[0] ) ) % ( (int) evalArthExpr( node->children->child[1] ) ) ;
+
+			break ;
+
+		case NT_POW 	:
+			
+				return pow( evalArthExpr( node->children->child[0] ) , evalArthExpr( node->children->child[1] ) ) ;
+
+			break ;
+
+		case NT_REAL 	:
+			
+				return node->real ;
+
+			break ;
+
+		case NT_VAR 	:
+			
+				var = getVar( node ) ;
+
+				return var->boolean ;
+
+			break ;
+
+		case NT_CALL 	:
+			
+				var = callFunction( node ) ;
+
+			break ;
+
+		default :
+			printf("Erreur de programmation: evalArthExpr avec type == %i\n", node->type );
+	}
+
+	return 0.0 ;
 }
 
 
 
 bool evalBoolExpr( Node * node ) {
 
-	return false ;
+	Variable * var = NULL ;
 
+	if( node->type == NT_BOOLEXP ) node = node->children->child[ 0 ] ;
+
+	switch( node->type ) {
+
+		case NT_NOT  :
+
+				return ! evalBoolExpr( node->children->child[ 0 ] ) ;
+
+			break ;
+
+		case NT_OR   :
+
+				return evalBoolExpr( node->children->child[ 0 ] ) || evalBoolExpr( node->children->child[ 1 ] ) ;
+
+			break ;
+
+		case NT_AND  :
+
+				return evalBoolExpr( node->children->child[ 0 ] ) && evalBoolExpr( node->children->child[ 1 ] ) ;
+
+			break ;
+
+		case NT_LT 	 :
+
+				return evalArthExpr( node->children->child[ 0 ] ) < evalArthExpr( node->children->child[ 1 ] ) ;
+
+			break ;
+
+		case NT_LE 	 :
+
+				return evalArthExpr( node->children->child[ 0 ] ) <= evalArthExpr( node->children->child[ 1 ] ) ;
+
+			break ;
+
+		case NT_GT 	 :
+
+				return evalArthExpr( node->children->child[ 0 ] ) > evalArthExpr( node->children->child[ 1 ] ) ;
+
+			break ;
+
+		case NT_GE 	 :
+
+				return evalArthExpr( node->children->child[ 0 ] ) >= evalArthExpr( node->children->child[ 1 ] ) ;
+
+			break ;
+
+		case NT_EQ 	 :
+
+				return evalArthExpr( node->children->child[ 0 ] ) == evalArthExpr( node->children->child[ 1 ] ) ;
+
+			break ;
+
+		case NT_NE 	 :
+
+				return evalArthExpr( node->children->child[ 0 ] ) != evalArthExpr( node->children->child[ 1 ] ) ;
+
+			break ;
+
+		case NT_VAR  :
+
+				var = getVar( node ) ;
+
+				return var->boolean ;
+
+			break ;
+
+		case NT_CALL :
+
+				var = callFunction( node ) ; 
+
+				return var->boolean ;
+
+			break ;
+
+
+		default :
+			printf("Erreur de programmation: evalBoolExpr avec type == %i\n", node->type );
+	}
+
+	return false ;
 }
 
 
 
-bool evalConc( Node * node , char ** string ) {
+void evalConc( Node * node , char ** string ) {
+
+	if( node->type == NT_CONCEXP ) node = node->children->child[ 0 ] ;
 
 	char * strings[ 2 ] ;
+	
 	Node * child[ 2 ] ;
 	child[ 0 ] = node->children->child[ 0 ] ;
 	child[ 1 ] = node->children->child[ 1 ] ;
 
 	int i ;
+
+	Variable * var = NULL ;
 
 	for( i = 0; i < 2 ; i++ ) {
 	
@@ -63,20 +279,29 @@ bool evalConc( Node * node , char ** string ) {
 
 			case NT_CONC   :
 
-					if( evalConc( child[ i ] , &strings[ i ] ) == false )
-						return false ;
+					evalConc( child[ i ] , &strings[ i ] ) ;
 			
 				break ;
 
 			case NT_VAR    :
+
+					var = getVar( node ) ;
+
+					strings[ i ] = var->str ;
+
 				break ;
 			
 			case NT_CALL   :
+
+					var = callFunction( node ) ;
+
+					strings[ i ] = var->str ;
+
 				break ;
 
 			default : 
 				printf("Erreur de programmation: appel de evalConc avec type = %i\n", child[ i ]->type ) ;
-				return false ;
+				return ;
 		}
 	}
 	
@@ -86,8 +311,6 @@ bool evalConc( Node * node , char ** string ) {
 
 	free( strings[ 0 ] ) ;
 	free( strings[ 1 ] ) ; 
-
-	return true ;
 }
 
 
@@ -227,8 +450,8 @@ bool executeTree( Node * node ) {
 
     				case T_STRING :
 
-    						if( false == evalConc( node->children->child[ 1 ] , &( node->children->child[ 0 ]->string ) ) )
-    							return false ;
+    						evalConc( node->children->child[ 1 ] , &( node->children->child[ 0 ]->string ) ) ;
+
     					
     					break ;
 

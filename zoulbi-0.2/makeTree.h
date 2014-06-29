@@ -178,9 +178,10 @@ typedef struct Node {
 
 typedef struct Function {
 
-    char * name ;
-    Type   type ;
-    Node * func ;
+    char     *  name       ;
+    Type        type       ;
+    Node     *  func       ;
+    Variable    returnBack ;
 
 } Function ;
 
@@ -197,7 +198,8 @@ void          printMemory( Stack    *                         ) ;
 void           initMemory( Stack    **                        ) ;
 Children * createChildren( int                                ) ;
 void         freeChildren( Children *                         ) ;
-void         setContainer( Node *                             ) ;
+void         setContainer( Node     *                         ) ;
+
 
 
 
