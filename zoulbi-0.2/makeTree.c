@@ -102,18 +102,55 @@ void logStatement( Stack * mem , char * name , int type) {
 }
 
 
+void stockFunction( Node * function , FunctionList ** functionList ) {
+
+    if(  *functionList == NULL ) {
+        
+        (*functionList) = ( FunctionList * ) malloc( sizeof( FunctionList ) ) ;
+        (*functionList)->number = 0 ;
+    
+    }
+
+    if( (*functionList)->number == 0 )
+        (*functionList)->f = ( Function ** ) malloc( sizeof( Function * ) ) ;
+    else
+        (*functionList)->f = ( Function ** ) realloc( (*functionList)->f , sizeof( Function * ) * ( (*functionList)->number + 1 ) ) ;
+
+    (*functionList)->number++ ;
+
+    (*functionList)->f[ (*functionList)->number - 1 ] = ( Function * ) malloc( sizeof( Function ) ) ;
+
+    (*functionList)->f[ (*functionList)->number - 1 ]->func = function          ;
+    (*functionList)->f[ (*functionList)->number - 1 ]->name = function->name    ;
+    (*functionList)->f[ (*functionList)->number - 1 ]->type = function->typeVar ;
+}
+
+
+
 void freeBloc( Stack * mem ) {
 
     int i ;
 
-    for( i = 0 ; i <= mem->stack[ mem->top ].top ; i++ ) {
+    if( mem->stack ) {
 
-        free( mem->stack[ mem->top ].v[ i ] ) ;
-        mem->stack[ mem->top ].v[ i ] = NULL  ;
+        for( i = 0 ; i <= mem->stack[ mem->top ].top ; i++ ) {
 
+            free( mem->stack[ mem->top ].v[ i ] ) ;
+            mem->stack[ mem->top ].v[ i ] = NULL  ;
+
+        }
     }
 
-    mem->stack = ( Variables * ) realloc( mem->stack , sizeof( Variables ) * mem->top ) ;
+    if( mem->top == 0 ) {
+        
+        free( mem->stack ) ;
+        mem->stack = NULL ;
+
+    }
+    
+    else
+        mem->stack = ( Variables * ) realloc( mem->stack , sizeof( Variables ) * mem->top ) ;
+    
     mem->top-- ;
 }
 
@@ -304,35 +341,5 @@ void printMemory( Stack * mem ) {
 
     }
 }
-
-
-// void setContainer( Node * parent ) {
-
-//     Node * inst = parent ;
-
-//     if( inst->type != NT_EMPTY ) {
-
-//         inst->children->child[ inst->children->number - 1 ]->container = parent ;
-//         inst = inst->children->child[ inst->children->number - 1 ] ;
-
-//         while( inst->type != NT_EMPTY ) {
-
-//             inst->children->child[ 0 ]->container = parent ;
-//             inst = inst->children->child[ 1 ] ;
-
-//         }
-//     }
-// }
-
-
-
-
-
-
-
-
-
-
-
 
 

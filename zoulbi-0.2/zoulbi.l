@@ -11,7 +11,7 @@
         node->children               = ( Children * ) malloc( sizeof( Children ) ) ;
         node->children->child        = ( Node ** ) malloc( sizeof( Node * ) ) ;
         node->children->child[ 0 ]   = createNode( NT_EMPTY ) ;
-        node->children->number          = 0 ;
+        node->children->number       = 0 ;
     
     }
 %}
@@ -203,20 +203,24 @@ string  \"[^\"]*\"
 
 
 ("real"|"bool"|"string"|"void") { 
+
+    char * type = copyString( yytext , 0 ) ; 
     
     yylval.node = createNode( NT_DEC ) ;
 
-    if( *yytext == 'r' )
+    initializeEmptyChild( yylval.node ) ;
+
+    if( *type == 'r' )
         yylval.node->typeVar = T_REAL ;
     
     else {
     
-        if ( *yytext == 's' )
+        if ( *type == 's' )
             yylval.node->typeVar = T_STRING ;
 
         else {
 
-            if( *yytext == 'b' )
+            if( *type == 'b' )
                 yylval.node->typeVar = T_BOOL ;
 
             else
@@ -225,7 +229,7 @@ string  \"[^\"]*\"
     
     }
 
-    initializeEmptyChild( yylval.node ) ;
+    free( type ) ;
     
     return( TYPE ) ;
 }

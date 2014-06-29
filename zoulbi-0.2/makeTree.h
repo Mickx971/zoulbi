@@ -185,6 +185,13 @@ typedef struct Function {
 
 } Function ;
 
+typedef struct FunctionList {
+
+    Function ** f      ;
+    int         number ;
+
+} FunctionList ;
+
 
 
 Node     *     createNode( int                                ) ;
@@ -199,7 +206,7 @@ void           initMemory( Stack    **                        ) ;
 Children * createChildren( int                                ) ;
 void         freeChildren( Children *                         ) ;
 void         setContainer( Node     *                         ) ;
-
+void        stockFunction( Node     *  ,  FunctionList **     ) ;
 
 
 

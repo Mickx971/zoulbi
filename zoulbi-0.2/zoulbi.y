@@ -9,11 +9,13 @@
     extern int  yyparse() ;
     extern FILE *yyin ;
 
-    void    yyerror(char *) ;
-    int     yylex()         ;
-    int     yydebug = 0     ;
-    Node  * root            ;  
+    void           yyerror(char *) ;
+    int            yylex()         ;
+    int            yydebug  =  0   ;
+    FunctionList * functions       ;  
     Stack * memory ;
+
+#define PRINT 1
 
 %}
 
@@ -154,9 +156,9 @@
 %start Input
 %%
 
-Input:
-                            {}  
-    |   Function            { root = $1 ; }
+Input: 
+                            {}     
+    |   Function            {}
     |   Function Leol Input {}
     ;
 
@@ -166,13 +168,15 @@ Leol:
     ;
 
 Function:
+        
         Prot Content END { 
         
             $1->children->child[ 1 ] = $2 ; 
             $$ = $1 ;
 
             setContainer( $$ ) ;
-        
+
+            freeBloc( memory );
         }
     ;
 
@@ -180,26 +184,73 @@ Prot:
         TYPE NAME LP ListArgOrEmpty RP EOL {
 
             $$ = createNode( NT_FUNCTION ) ;
+            $$->container = NULL ;
             $$->children = createChildren( 2 ) ;
             $$->children->child[ 0 ] = $4 ;
             $$->name = $2 ;
             $$->typeVar = $1->typeVar ;
+
+            stockFunction( $$ , &functions ) ;
         
         }
     ;
 
 ListArgOrEmpty:
+    
         { $$ = createNode( NT_EMPTY ) ; }
-    |   ListArg { $$ = createNode( NT_EMPTY ) ; }
+    
+    |   ListArg { 
+        
+            $$ = $1 ; 
+       
+        }
     ;
 
 ListArg:
-        Arg {}
-    |   Arg VIRGUL ListArg {}
+        Arg {
+
+            $$ = createNode( NT_LISTINST ) ;
+            $$->children = createChildren( 2 ) ;
+            $$->children->child[ 0 ] = $1 ;
+            $$->children->child[ 1 ] = createNode( NT_EMPTY ) ;
+        
+        }
+
+    |   Arg VIRGUL ListArg {
+
+            $$ = createNode( NT_LISTINST ) ;
+            $$->children = createChildren( 2 ) ;
+            $$->children->child[ 0 ] = $1 ;
+            $$->children->child[ 1 ] = $3 ;
+
+        }
     ;
 
 Arg:
-        TYPE NAME {}
+        TYPE NAME {
+
+            if( memory->stack == NULL ) addMemoryBloc( memory ) ;
+
+            /* Vérification de la validité de la déclaration */
+
+            if( searchVar( $2 , memory ) ) {
+
+                printf( "Déclaration multiple de la variable %s\n", $2 ) ;
+
+                free( $2 ) ;
+
+                return 1 ;
+
+            }
+
+            /* Enregistrement de la déclaration */
+
+            logStatement( memory , $2 , $1->typeVar ) ;
+
+            $1->name = $2 ;
+            $$ = $1 ;
+
+        }
     ;
 
 Content:
@@ -285,8 +336,26 @@ Inst:
     ;
 
 ReturnLine:
-        RETURN EOL {}
-    |   RETURN Expr EOL {}
+        
+        RETURN EOL { 
+        
+            $1->typeVar = T_VOID ; 
+            $$ = $1 ;
+        }
+
+    |   RETURN Expr EOL {
+
+            free( $1->children->child[ 0 ] ) ;
+
+            $1->children->child[ 0 ] = $2 ;
+
+            $1->children->number = 1 ;
+
+            $1->typeVar = $2->typeVar ;
+
+            $$ = $1 ;
+
+        }
     ;
 
 DefVarLine:
@@ -300,8 +369,6 @@ DefVarLine:
                 printf( "Déclaration multiple de la variable %s\n", $2 ) ;
 
                 free( $2 ) ;
-
-                // TODO: Ne pas free seulement l'élément mais la totalité de la mémoire allouée
 
                 return 1 ;
 
@@ -328,8 +395,6 @@ DefVarLine:
                 printf( "Déclaration multiple de la variable %s\n", $2 ) ;
 
                 free( $2 ) ;
-
-                // TODO: Ne pas free seulement l'élément mais la totalité de la mémoire allouée
 
                 return 1 ;
 
@@ -410,6 +475,7 @@ Set:
 
                 c->child[ 0 ] = createNode( NT_VAR ) ;
                 c->child[ 0 ]->typeVar = memory->stack[ indexs[ 0 ] ].v[ indexs[ 1 ] ]->type ;
+                c->child[ 0 ]->name = $1 ;
                 
                 switch( c->child[ 0 ]->typeVar ) {
                     
@@ -450,23 +516,56 @@ Set:
     ;
 
 CallLine:
-        Call EOL {}
+        Call EOL { $$ = $1 ; }
     ;
 
 Call:
         NAME LP ListParamOrEmpty RP {
 
+            $$ = createNode( NT_CALL ) ;
+            $$->children = createChildren( 1 ) ;
+            $$->children->child[ 0 ] = $3 ;
+            $$->name = $1 ;
+
+            int i ;
+
+            for( i = 0 ; i < functions->number ; i++ ) {
+
+                if( strcmp( functions->f[ i ]->name , $1 ) == 0 ) {
+
+                    $$->typeVar = functions->f[ i ]->type ;
+
+                }
+            }
         }
     ;
 
 ListParamOrEmpty:
-        {}
-    |   ListParam {}
+
+        { $$ = createNode( NT_EMPTY ) ; }
+    
+    |   ListParam { $$ = $1 ; }
     ;
 
 ListParam:
-        Expr VIRGUL ListParam {}
-    |   Expr {}
+
+        Expr VIRGUL ListParam {
+
+            $$ = createNode( NT_CALLPARAM ) ;
+            $$->children = createChildren( 2 ) ;
+            $$->children->child[ 0 ] = $1 ;
+            $$->children->child[ 1 ] = $3 ;
+
+        }
+
+    |   Expr {
+
+            $$ = createNode( NT_CALLPARAM ) ;
+            $$->children = createChildren( 2 ) ;
+            $$->children->child[ 0 ] = $1 ;
+            $$->children->child[ 1 ] = createNode( NT_EMPTY ) ;
+
+        }
     ;
 
 Bloc:
@@ -520,8 +619,11 @@ Bif:
     ;
 
 BoolExpr:
+
         BOOL            { $$ = $1 ; }
+
     |   BoolExprMore    { $$ = $1 ; }
+
     ;
 
 BoolExprMore:  
@@ -1037,7 +1139,7 @@ ArthExpr12:
     ;
 
 Conc:
-        STRING                              {
+        STRING {
 
             $$ = $1 ;
 
@@ -1104,7 +1206,8 @@ int main( int argc, char **argv ) {
          
             printf( "\nFichier correct\n" );
             printf( "Execution ... \n\n" );
-            executeTree( root ) ;
+
+            Execute( functions , NULL ) ;
 
         }
   
