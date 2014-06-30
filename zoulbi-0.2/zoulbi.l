@@ -301,8 +301,9 @@ string  \"[^\"]*\"
 
 {real}  {
 
-    yylval.node       = createNode( NT_REAL ) ;
-    yylval.node->real = atof( yytext )  ;
+    yylval.node          = createNode( NT_REAL ) ;
+    yylval.node->real    = atof( yytext )  ;
+    yylval.node->typeVar = T_REAL ;
 
     return( REAL ) ;
 
@@ -312,8 +313,9 @@ string  \"[^\"]*\"
 
 {string}    {
 
-    yylval.node         = createNode( NT_STRING )      ;
-    yylval.node->string = copyString( yytext + 1 , 1 ) ;
+    yylval.node          = createNode( NT_STRING )      ;
+    yylval.node->string  = copyString( yytext + 1 , 1 ) ;
+    yylval.node->typeVar = T_STRING ;
 
     return( STRING ) ;
 

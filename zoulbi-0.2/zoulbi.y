@@ -15,8 +15,6 @@
     FunctionList * functions       ;  
     Stack * memory ;
 
-#define PRINT 1
-
 %}
 
 /*  
@@ -449,6 +447,8 @@ DefVarLine:
             /* Enregistrement de la déclaration */
 
             logStatement( memory , $2 , $1->typeVar ) ;
+
+
         }  
     ;
 
@@ -527,15 +527,31 @@ Call:
             $$->children->child[ 0 ] = $3 ;
             $$->name = $1 ;
 
-            int i ;
+            int i , found = 0 ;
 
-            for( i = 0 ; i < functions->number ; i++ ) {
+            if( strcmp( $$->name , "print" ) == 0 ) {
 
-                if( strcmp( functions->f[ i ]->name , $1 ) == 0 ) {
+                $$->typeVar = T_VOID ;
+                found = 1 ;
+            
+            }
 
-                    $$->typeVar = functions->f[ i ]->type ;
+            if( found == 0 ) {
 
+                for( i = 0 ; i < functions->number ; i++ ) {
+
+                    if( strcmp( functions->f[ i ]->name , $1 ) == 0 ) {
+
+                        $$->typeVar = functions->f[ i ]->type ;
+                        found = 1 ;
+                    
+                    }
                 }
+            }
+            
+            if( found == 0 ) {
+                printf("Fonction %s non trouvée\n", $$->name );
+                return 1 ;
             }
         }
     ;

@@ -1,16 +1,23 @@
-real first( real b )
+real fact( real a )
 
-    if( b <= 1 )
-        return 1
-    else
-        return first( b - 1 ) * b
-    end
+	if( a <= 1 )
+
+		return 1
+	
+	end
+
+	real b = a - 1
+
+	print( b )
+
+	return fact( b ) * a
+
 end
 
 real main()
     
-    real a = 3
+    real a = fact( 3 )
 
-    a = first( a )
+    print( "Factoriel de a == " ,  a )
 
 end

@@ -6,9 +6,7 @@
 #include "evalTree.h"
 #include "utils.h"
 
-
-#define PRINT 1
-
+#define PRINT
 
 FunctionList * functions ;
 
@@ -75,6 +73,8 @@ void delMemory( Node * node ) {
                     for( i = 0 ; i < node->memory->stack[ node->memory->top ].top ; i++ )
                         free( node->memory->stack[ node->memory->top ].v[ i ] ) ;
 
+
+                    free( node->memory->stack[ node->memory->top ].v ) ;
 
                     node->memory->stack[ node->memory->top ].v = NULL ;
 
@@ -221,6 +221,68 @@ void addCall( Node * node ) {
 }
 
 
+void executePrint( Node * node ) {
+
+    char * s ;
+
+    bool first = true ;
+
+    while( node->type != NT_EMPTY ) {
+
+        switch( node->children->child[ 0 ]->type ) {
+
+            case NT_ARTHEXP   :
+
+                    if( first == false )
+                        printf( " %2f" , evalArthExpr( node->children->child[ 0 ] ) ) ;
+                    else
+                        printf( "%2f" , evalArthExpr( node->children->child[ 0 ] ) ) ;
+
+                    first = false ;
+
+                break ;
+
+            case NT_BOOLEXP   :
+
+                    s = copyString( ( evalBoolExpr( node->children->child[ 0 ] ) ) ? "true" : "false" , 0 ) ;
+
+                    if( first == false )
+                        printf( " %s" , s ) ;
+                    else
+                        printf( "%s" , s ) ;
+
+                    first = false ;
+
+                break ;
+
+            case NT_CONCEXP :
+                
+                    evalConc( node->children->child[ 0 ] , &s ) ;
+
+                    if( first == false )
+                        printf(" %s", s );
+                    else
+                        printf("%s", s );
+
+                    first = false ;
+
+                break ;
+
+
+            default :
+                printf("Erreur de programmation: appel de executePrint avec type == %i\n", node->children->child[ 0 ]->typeVar ) ;
+                getchar() ;
+                return ;
+        }
+
+        node = node->children->child[ 1 ] ;
+    }
+
+    printf("\n");
+
+}
+
+
 void setParams( Node * callparams , Node * function ) {
 
 #ifdef PRINT
@@ -232,7 +294,9 @@ void setParams( Node * callparams , Node * function ) {
 
     addCall( function ) ;
 
+#ifdef PRINT
     printType( callparams->type , 1 ) ;
+#endif
 
     switch( callparams->type ) {
         
@@ -241,6 +305,8 @@ void setParams( Node * callparams , Node * function ) {
         
         case NT_CALLPARAM :
         
+                /* Création des variables pour les paramètres */
+
                 executeTree( function->children->child[ 0 ] ) ;
 
                 while( callparams->type != NT_EMPTY ) {
@@ -303,9 +369,8 @@ Node * getFunctionNode( char * name ) {
         
         if( strcmp( functions->f[ i ]->name , name ) == 0 ) {
         
-            printf("Function %s found\n", name );
-
 #ifdef PRINT
+            printf("Function %s found\n", name );
             printf("Out getFunctionNode\n");
             fflush( stdout ) ;
 #endif
@@ -328,26 +393,55 @@ Variable * callFunction( Node * node ) {
 #ifdef PRINT
     printf("In callFunction\n");
     fflush( stdout ) ;
+
+    printf("---------------------\n");
+    printf("New appeal %s\n", node->name );
+    printf("---------------------\n");
+    printf("\n");
+    fflush( stdout ) ;
 #endif
 
-    printf("New appeal %s\n", node->name );
-    fflush( stdout ) ;
+
+    if( strcmp( node->name , "print" ) == 0 ) {
+     
+        executePrint( node->children->child[ 0 ] ) ;
+        return NULL ;
+    
+    }
 
     Node * function = getFunctionNode( node->name ) ;
-
+    
     setParams( node->children->child[ 0 ] , function ) ;
-
+    
     executeTree( function->children->child[ 1 ] ) ;
-
-    printf("End appeal\n");
 
     int i ;
 
     for( i = 0 ; i < functions->number ; i++ ) {
 
         if( strcmp( functions->f[ i ]->name , node->name ) == 0 ) {
-            printf("Return !!!!!!!!!!!!!!!\n");
-            printf("%f\n", functions->f[ i ]->returnBack.val );
+
+#ifdef PRINT
+            switch( functions->f[ i ]->type ) {
+                
+                case T_STRING :
+                        printf("%s\n", functions->f[ i ]->returnBack.str );
+                    break ;
+                case T_REAL :
+                        printf("%f\n", functions->f[ i ]->returnBack.val );
+                    break ;
+                case T_BOOL :
+                        printf("bool :%i\n", functions->f[ i ]->returnBack.boolean );
+                    break ;
+                case T_VOID :
+                    printf("void\n");
+                    break ;
+            }
+
+            printf("End appeal\n");
+            printf("------------------\n");
+
+#endif
             return &functions->f[ i ]->returnBack ;
         }
     }
@@ -388,7 +482,7 @@ void Execute( FunctionList * fl , Variables * params ) {
 Variable * getVar( Node * node ) {
 
 #ifdef PRINT
-    printf("In getVar\n");
+    printf("In getVar for %s\n", node->name);
     fflush( stdout ) ;
 #endif
 
@@ -400,16 +494,19 @@ Variable * getVar( Node * node ) {
 
     while( container != NULL ) {
 
-
         while( container->memory->stack[ container->memory->top ].v == NULL ) {
+
             container = container->container ;
+
         }
-        
+
+        getchar();
+
+        printf(" top = %i\n", container->memory->stack[ container->memory->top ].top );
+
         for( i = 0 ; i <= container->memory->stack[ container->memory->top ].top ; i++ ) {
 
-
             if( strcmp( container->memory->stack[ container->memory->top ].v[ i ]->name , node->name ) == 0 ) {
-
 
                 var = container->memory->stack[ container->memory->top ].v[ i ] ;
 
@@ -430,7 +527,6 @@ Variable * getVar( Node * node ) {
     printf("Out getVar\n");
     fflush( stdout ) ;
 #endif
-
 
     return var ;
 
@@ -462,8 +558,6 @@ void createVariable( Node * node ) {
     (*newVar)->type = node->typeVar ;
 
     (*newVar)->name = node->name ;
-
-    printf("%s\n", (*newVar)->name );
 
     switch( (*newVar)->type ) {
 
@@ -502,7 +596,7 @@ void createVariable( Node * node ) {
 double evalArthExpr( Node * node ) {
 
 #ifdef PRINT
-    printf("In evalArthExpr ");
+    printf("In evalArthExpr \n");
     fflush( stdout ) ;
 #endif
 
@@ -511,48 +605,80 @@ double evalArthExpr( Node * node ) {
 
     if( node->type == NT_ARTHEXP ) node = node->children->child[ 0 ] ;
 
-    // printType( node->type , 1 );
-    // fflush( stdout ) ;
-
     switch( node->type ) {
 
         case NT_PLUS    :
+
+#ifdef PRINT
+    printf("Out evalArthExpr\n");
+    fflush( stdout ) ;
+#endif
             
                 return evalArthExpr( node->children->child[0] ) + evalArthExpr( node->children->child[1] ) ;
 
             break ;
 
         case NT_MINUS   :
+
+#ifdef PRINT
+    printf("Out evalArthExpr\n");
+    fflush( stdout ) ;
+#endif
             
                 return evalArthExpr( node->children->child[0] ) - evalArthExpr( node->children->child[1] ) ;
 
             break ;
 
         case NT_MULT    :
+
+#ifdef PRINT
+    printf("Out evalArthExpr\n");
+    fflush( stdout ) ;
+#endif
             
                 return evalArthExpr( node->children->child[0] ) * evalArthExpr( node->children->child[1] ) ;
 
             break ;
 
         case NT_DIV     :
+
+#ifdef PRINT
+    printf("Out evalArthExpr\n");
+    fflush( stdout ) ;
+#endif
             
                 return evalArthExpr( node->children->child[0] ) / evalArthExpr( node->children->child[1] ) ;
 
             break ;
 
         case NT_MOD     :
+
+#ifdef PRINT
+    printf("Out evalArthExpr\n");
+    fflush( stdout ) ;
+#endif
             
                 return ( (int) evalArthExpr( node->children->child[0] ) ) % ( (int) evalArthExpr( node->children->child[1] ) ) ;
 
             break ;
 
         case NT_POW     :
+
+#ifdef PRINT
+    printf("Out evalArthExpr\n");
+    fflush( stdout ) ;
+#endif
             
                 return pow( evalArthExpr( node->children->child[0] ) , evalArthExpr( node->children->child[1] ) ) ;
 
             break ;
 
         case NT_REAL    :
+
+#ifdef PRINT
+    printf("Out evalArthExpr\n");
+    fflush( stdout ) ;
+#endif
 
                 return node->real ;
 
@@ -562,6 +688,11 @@ double evalArthExpr( Node * node ) {
             
                 var = getVar( node ) ;
 
+#ifdef PRINT
+    printf("Out evalArthExpr\n");
+    fflush( stdout ) ;
+#endif
+
                 return var->val ;
 
             break ;
@@ -569,6 +700,11 @@ double evalArthExpr( Node * node ) {
         case NT_CALL    :
 
                 var = callFunction( node ) ;
+
+#ifdef PRINT
+    printf("Out evalArthExpr\n");
+    fflush( stdout ) ;
+#endif
 
                 return var->val ;
 
@@ -657,6 +793,12 @@ bool evalBoolExpr( Node * node ) {
 
             break ;
 
+        case NT_BOOL :
+
+                return node->boolean ;
+
+            break ;
+
         case NT_VAR  :
 
                 var = getVar( node ) ;
@@ -701,8 +843,20 @@ void evalConc( Node * node , char ** string ) {
     char * strings[ 2 ] ;
     
     Node * child[ 2 ] ;
-    child[ 0 ] = node->children->child[ 0 ] ;
-    child[ 1 ] = node->children->child[ 1 ] ;
+    if( node->type == NT_CONC ) {
+
+        child[ 0 ] = node->children->child[ 0 ] ;
+        child[ 1 ] = node->children->child[ 1 ] ;
+
+    }
+    else {
+
+        child[ 0 ] = node ;
+        child[ 1 ] = createNode( NT_STRING ) ;
+        child[ 1 ]->string = copyString( "" , 0 )  ;
+
+    }
+
 
     int i ;
 
@@ -772,7 +926,7 @@ bool executeTree( Node * node ) {
     int i ;
     
 #ifdef PRINT
-    printf("In executeTree ");
+    printf("In executeTree\n");
     printType( node->type , 1 ) ;
     fflush( stdout ) ;
 #endif
@@ -827,7 +981,7 @@ bool executeTree( Node * node ) {
                                 break ;
 
                             default :
-                                printf("ListInst switch type == %i\n", node->container->type ) ;
+                                printf("Err: ListInst switch type == %i\n", node->container->type ) ;
                                 break ;
                         } 
 
@@ -931,9 +1085,12 @@ bool executeTree( Node * node ) {
                             var = getVar( node->children->child[ 0 ] ) ;
 
                             var->boolean = evalBoolExpr( node->children->child[ 1 ] ) ;
+#ifdef PRINT
+                            printf("\n");
                             printf("%s == %i\n", var->name , var->boolean );
+                            printf("\n");
                             fflush( stdout ) ;
-
+#endif
                         break ;
 
 
@@ -942,9 +1099,12 @@ bool executeTree( Node * node ) {
                             var = getVar( node->children->child[ 0 ] ) ;
 
                             var->val = evalArthExpr( node->children->child[ 1 ] ) ;
+#ifdef PRINT
+                            printf("\n");
                             printf("%s == %f\n", var->name , var->val );
+                            printf("\n");
                             fflush( stdout ) ;
-
+#endif
                         break ;
 
 
@@ -953,9 +1113,12 @@ bool executeTree( Node * node ) {
                             var = getVar( node->children->child[ 0 ] ) ;
 
                             evalConc( node->children->child[ 1 ] , &( var->str ) ) ;
+#ifdef PRINT
+                            printf("\n");
                             printf("%s == %s\n", var->name , var->str );
+                            printf("\n");
                             fflush( stdout ) ;
-                        
+#endif
                         break ;
 
 
@@ -993,7 +1156,7 @@ bool executeTree( Node * node ) {
                             switch( functions->f[ i ]->type ) {
 
                                 case T_REAL   :
-                                    
+
                                         functions->f[ i ]->returnBack.val = evalArthExpr( node->children->child[ 0 ] ) ;
 
                                     break ;
@@ -1029,7 +1192,7 @@ bool executeTree( Node * node ) {
     }
 
 #ifdef PRINT
-    printf("Out executeTree ");
+    printf("Out executeTree\n");
     printType( node->type , 1 ) ;
 #endif
 
