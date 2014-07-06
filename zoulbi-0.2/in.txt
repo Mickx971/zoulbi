@@ -14,10 +14,14 @@ real fact( real a )
 
 end
 
+real carree(real a)
+	return a * a
+end
+
 real main()
     
-    real a = fact( 3 )
+    real a = 3
 
-    print( "Factoriel de a == " ,  a )
+    print( "Carre de ", a, " == " ,  carree( a ) )
 
 end
