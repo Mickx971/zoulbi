@@ -34,7 +34,6 @@ string  \"[^\"]*\"
 
 
 
-
 "\n"    { return( EOL )    ; }
 
 "("     { return( LP )     ; }
@@ -47,6 +46,7 @@ string  \"[^\"]*\"
 
 "end"   { return( END )    ; }
 
+( "//" | "#" ) {}
 
 "."     {
 
