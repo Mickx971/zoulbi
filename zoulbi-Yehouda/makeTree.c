@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "makeTree.h"
+#include "utils.h"
 
 
 Node * createNode( int type ) {
@@ -25,7 +26,16 @@ Node * nodeChildren( Node * father, Children * c ) {
     for( i = 0 ; i < c->number ; i++ )
         father->children->child[ i ] = c->child[ i ] ;
 
+    father->children->number = c->number ;
+
     return father ;
+}
+
+
+void freeChildren( Children * c ) {
+    free( c->child ) ;
+    free( c ) ;
+    c = NULL ; 
 }
 
 
@@ -88,39 +98,60 @@ void logStatement( Stack * mem , char * name , int type) {
 
     mem->stack[ mem->top ].v[ i ]->name = copyString( name , 0 ) ;
 
-    mem->stack[ mem->top ].v[ i ]->type = type ;
-
+    mem->stack[ mem->top ].v[ i ]->type = type ;    
 }
 
 
-Stack * getMemoryBloc( Stack * mem ) {
+void stockFunction( Node * function , FunctionList ** functionList ) {
 
-    Stack * treeMemoryBloc    =  ( Stack * ) malloc( sizeof( Stack ) ) ;
-    treeMemoryBloc->stack     =  &( mem->stack[ mem->top ] ) ;
-    treeMemoryBloc->top       =  0 ;
+    if(  *functionList == NULL ) {
+        
+        (*functionList) = ( FunctionList * ) malloc( sizeof( FunctionList ) ) ;
+        (*functionList)->number = 0 ;
+    
+    }
 
-    return treeMemoryBloc ;
+    if( (*functionList)->number == 0 )
+        (*functionList)->f = ( Function ** ) malloc( sizeof( Function * ) ) ;
+    else
+        (*functionList)->f = ( Function ** ) realloc( (*functionList)->f , sizeof( Function * ) * ( (*functionList)->number + 1 ) ) ;
 
+    (*functionList)->number++ ;
+
+    (*functionList)->f[ (*functionList)->number - 1 ] = ( Function * ) malloc( sizeof( Function ) ) ;
+
+    (*functionList)->f[ (*functionList)->number - 1 ]->func = function          ;
+    (*functionList)->f[ (*functionList)->number - 1 ]->name = function->name    ;
+    (*functionList)->f[ (*functionList)->number - 1 ]->type = function->typeVar ;
 }
+
 
 
 void freeBloc( Stack * mem ) {
 
     int i ;
 
-    for( i = 0 ; i < mem->stack[ mem->top ].top ; i++ ) {
-        
-        free( mem->stack[ mem->top ].v[ i ] ) ;
-        mem->stack[ mem->top ].v[ i ] = NULL  ;
-    
+    if( mem->stack ) {
+
+        for( i = 0 ; i <= mem->stack[ mem->top ].top ; i++ ) {
+
+            free( mem->stack[ mem->top ].v[ i ] ) ;
+            mem->stack[ mem->top ].v[ i ] = NULL  ;
+
+        }
     }
 
-    free( *( &( mem->stack ) + mem->top ) ) ;
-    *( &( mem->stack ) + mem->top ) = NULL  ;
+    if( mem->top == 0 ) {
+        
+        free( mem->stack ) ;
+        mem->stack = NULL ;
 
-    mem->stack = ( Variables * ) realloc( mem->stack , sizeof( Variables ) * mem->top ) ;
+    }
+    
+    else
+        mem->stack = ( Variables * ) realloc( mem->stack , sizeof( Variables ) * mem->top ) ;
+    
     mem->top-- ;
-
 }
 
 
@@ -141,6 +172,156 @@ void initMemory( Stack ** mem ) {
 
 }
 
+void printTypef( int f , int s ) {
+
+    printf("Set container ");
+    printType( f , 0 ) ;
+    printf( " for " ) ;
+    printType( s , 1 ) ;
+
+}
+
+void setContainer( Node * node ) {
+
+#ifdef PRINT
+    printf("In set container for ");
+    printType(node->type,1);
+    printf("\n");
+#endif
+
+    if( node == NULL ) {
+        printf("Erreur de programe: appel de setContainer avec node == NULL\n");
+        return ;
+    }
+
+    Node * inst ;
+
+    int i , number ;
+
+    switch( node->type ) {
+
+        case NT_FUNCTION  :
+        case NT_IF        :
+        case NT_ELSE      :
+
+                number = node->children->number ;
+
+                for( i = 0 ; i < number ; i++ ) {
+
+#ifdef PRINT
+                    printTypef( node->type ,  node->children->child[ i ]->type ) ;
+#endif
+                    node->children->child[ i ]->container = node ;
+
+                    setContainer( node->children->child[ i ] ) ;
+
+                }
+
+            break ;
+
+        case NT_WHILE     :
+        case NT_FOR       :
+
+
+
+                number = node->children->number ;
+
+                for( i = 0 ; i < number - 1 ; i++ ) {
+
+#ifdef PRINT
+                    printTypef( node->container->type ,  node->children->child[ i ]->type ) ;
+#endif
+                    node->children->child[ i ]->container = node->container ;
+
+                    setContainer( node->children->child[ i ] ) ;
+
+                }
+
+#ifdef PRINT
+                printTypef( node->type ,  node->children->child[ i ]->type ) ;
+#endif
+                node->children->child[ i ]->container = node ;                
+                
+                setContainer( node->children->child[ i ] ) ;
+
+            break ;
+
+        case NT_LISTINST :
+
+                inst = node ;
+
+                while( inst->type != NT_EMPTY ) {
+
+#ifdef PRINT
+                    printTypef( node->container->type ,  inst->children->child[ 0 ]->type ) ;
+#endif
+                    inst->children->child[ 0 ]->container = node->container ;
+                    inst->children->child[ 1 ]->container = node->container ;
+
+                    setContainer( inst->children->child[ 0 ] ) ;
+
+                    inst = inst->children->child[ 1 ] ;
+
+                }
+
+            break ;
+
+        case NT_PLUS      :
+        case NT_MINUS     :
+        case NT_MULT      :
+        case NT_DIV       :
+        case NT_MOD       :
+        case NT_POW       :
+        case NT_CONC      :
+        case NT_NOT       :
+        case NT_OR        :
+        case NT_AND       :
+        case NT_LT        :
+        case NT_LE        :
+        case NT_GT        :
+        case NT_GE        :
+        case NT_EQ        :
+        case NT_NE        :
+        case NT_BOOLEXP   :
+        case NT_ARTHEXP   :
+        case NT_CONCEXP   :
+        case NT_SET       :
+        case NT_CALL      :
+        case NT_CALLPARAM :
+        case NT_RETURN    :
+        case NT_IFELSE    :
+
+                number = node->children->number ;
+
+                for( i = 0 ; i < number ; i++ ) {
+
+#ifdef PRINT
+                    printTypef( node->container->type , node->children->child[ i ]->type ) ;
+#endif
+                    node->children->child[ i ]->container = node->container ;
+
+                    setContainer( node->children->child[ i ] ) ;
+
+                }
+
+            break ;
+
+        case NT_DEC       :
+        case NT_VAR       :
+        case NT_BOOL      :
+        case NT_STRING    :
+        case NT_REAL      :
+        case NT_EMPTY     :
+            break ;
+
+        default :
+            printf("Erreur de programe: appel de setContainer avec node->type == %i\n", node->type );
+            return ;
+    }
+
+}
+
+
 void printMemory( Stack * mem ) {
     
     if(! mem || ! mem->stack) {
@@ -160,4 +341,5 @@ void printMemory( Stack * mem ) {
 
     }
 }
+
 
