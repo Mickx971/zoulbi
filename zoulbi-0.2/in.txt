@@ -1,23 +1,27 @@
-real fact( real a )
+real carre( real a )
 
-	if( a <= 1 )
-
-		return 1
-	
-	end
-
-	real b = a - 1
-
-	print( b )
-
-	return fact( b ) * a
+	return a * a
 
 end
 
-real main()
+void main()
+
+    real a = carre( 3 )
     
-    real a = fact( 3 )
+    real i = 0
 
-    print( "Factoriel de a == " ,  a )
+    if( a > 3 )
+    	print("A plus grand que" , 3 )
+    	while( i < a )
+    		print("i",i)
+    		i = i + 1
+    	end
+    else
+    	print("A plus petit que" , 3 )
+    	for( i = 0 ; i < a ; i = i + 1 )
+    		print("i",i)
+    	end
+    end
 
+    print("i =", i )
 end

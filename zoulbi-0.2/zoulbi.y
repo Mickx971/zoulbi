@@ -1176,7 +1176,7 @@ Conc:
 
 
 ConcWithInvoke:
-        Invoke  { $$ = $1 ; } //ici vérifier si la fonction ou variable appelée est de type string
+        Invoke  { $$ = $1 ; }
     |   Conc    { $$ = $1 ; }
     ;
 

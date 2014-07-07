@@ -6,8 +6,6 @@
 #include "evalTree.h"
 #include "utils.h"
 
-#define PRINT
-
 FunctionList * functions ;
 
 double      evalArthExpr( Node *               ) ;
@@ -395,7 +393,7 @@ Variable * callFunction( Node * node ) {
     fflush( stdout ) ;
 
     printf("---------------------\n");
-    printf("New appeal %s\n", node->name );
+    printf("New call %s\n", node->name );
     printf("---------------------\n");
     printf("\n");
     fflush( stdout ) ;
@@ -438,7 +436,7 @@ Variable * callFunction( Node * node ) {
                     break ;
             }
 
-            printf("End appeal\n");
+            printf("End call\n");
             printf("------------------\n");
 
 #endif
@@ -500,9 +498,11 @@ Variable * getVar( Node * node ) {
 
         }
 
+#ifdef PRINT
         getchar();
 
         printf(" top = %i\n", container->memory->stack[ container->memory->top ].top );
+#endif
 
         for( i = 0 ; i <= container->memory->stack[ container->memory->top ].top ; i++ ) {
 

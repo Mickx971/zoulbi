@@ -194,19 +194,19 @@ typedef struct FunctionList {
 
 
 
-Node     *     createNode( int                                ) ;
-Node     *   nodeChildren( Node     *  ,  Children *          ) ;
-char     *     copyString( char     *  ,  int                 ) ;
-int      *      searchVar( char     *  ,  Stack    *          ) ;
-void         logStatement( Stack    *  ,  char     *  ,  int  ) ;
-void             freeBloc( Stack    *                         ) ;
-void        addMemoryBloc( Stack    *                         ) ;
-void          printMemory( Stack    *                         ) ;
-void           initMemory( Stack    **                        ) ;
-Children * createChildren( int                                ) ;
-void         freeChildren( Children *                         ) ;
-void         setContainer( Node     *                         ) ;
-void        stockFunction( Node     *  ,  FunctionList **     ) ;
+Node     *     createNode( int                                ) ; // creer un noeud
+Node     *   nodeChildren( Node     *  ,  Children *          ) ; // associer à un noeud des fils
+char     *     copyString( char     *  ,  int                 ) ; // Copier une chaine de caractère
+int      *      searchVar( char     *  ,  Stack    *          ) ; // Chercher une variable dans la liste de varible définie
+void         logStatement( Stack    *  ,  char     *  ,  int  ) ; // Déclarer une variable
+void             freeBloc( Stack    *                         ) ; // libérer le bloc mémoire de la dernière fonction analysée
+void        addMemoryBloc( Stack    *                         ) ; // ajouter un bloc mémoire pour la nouvelle fonction analysée
+void          printMemory( Stack    *                         ) ; // Afficher la mémoire (Pour le debuggage)
+void           initMemory( Stack    **                        ) ; // initialiser la mémoire (malloc ...)
+Children * createChildren( int                                ) ; // creer des fils
+void         freeChildren( Children *                         ) ; // free des fils
+void         setContainer( Node     *                         ) ; // assosier un noeud à son conteneur
+void        stockFunction( Node     *  ,  FunctionList **     ) ; // stocker une fonction
 
 
 
