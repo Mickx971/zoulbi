@@ -4,11 +4,51 @@ real carre( real a )
 
 end
 
+real div( real a , real b)
+    return a / b
+end
+
+
+real fact( real a )
+    
+    if( a <= 1 ) 
+        return 1
+    end
+
+    real b = a - 1
+
+    while( b > 1 )
+        a = a * b
+        b = b - 1
+    end
+
+    return a
+
+end
+
+real fib( real n )
+    real first  = 0
+    real second = 1
+    real tmp  
+
+    while( n > 0 )
+        n = n - 1
+        tmp = first + second
+        first = second 
+        second = tmp
+        print(":", first )
+    end
+    return first
+end
+
 void main()
 
     real a = carre( 3 )
-    
+
+    real n = div(a, 2)
+
     real i = 0
+
 
     if( a > 3 )
     	print("A plus grand que" , 3 )
@@ -24,5 +64,12 @@ void main()
     end
 
     print("i =", i )
+    print("div =", n)
+
+    real c = 20
+    
+    #print("factoriel de" , c , "=" , fact(c) )
+
+    print("fibo de" , c , "=" , fib(c) )
 end
 
