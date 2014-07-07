@@ -29,10 +29,11 @@ typedef enum NodeType {
     /***************************/
         
         NT_LISTINST   = 200 ,    // liste d'instructions
-        NT_BOOLEXP    = 201 ,    // Expression booléenne
-        NT_ARTHEXP    = 202 ,    // Expression arithmétique
-        NT_CALLPARAM  = 203 ,    // liste de paramètres (appel)
-        NT_IFELSE     = 204 ,    // Noeud qui contient deux enfants: la liste d'instructions du if et potentiellement celle du else
+        NT_CONCEXP    = 201 ,    // Expresion de concaténation
+        NT_BOOLEXP    = 202 ,    // Expression booléenne
+        NT_ARTHEXP    = 203 ,    // Expression arithmétique
+        NT_CALLPARAM  = 204 ,    // liste de paramètres (appel)
+        NT_IFELSE     = 205 ,    // Noeud qui contient deux enfants: la liste d'instructions du if et potentiellement celle du else
 
     /***************************/
     /* Opérateurs arithmétique */
@@ -161,8 +162,11 @@ typedef struct Node {
     double   real     ;
     
     bool     boolean  ;
-
-    Type     typeVar  ;
+    
+    union {
+        Type    typeVar  ;
+        Type    typeExpr ;
+    } ;
 
     Stack *  memory   ;
 
@@ -174,31 +178,35 @@ typedef struct Node {
 
 typedef struct Function {
 
-    char * name ;
-    Type   type ;
-    Node * func ;
+    char     *  name       ;
+    Type        type       ;
+    Node     *  func       ;
+    Variable    returnBack ;
 
 } Function ;
 
+typedef struct FunctionList {
 
-typedef struct Content {
-    
-    Node  * n ;
-    Stack * s ;
+    Function ** f      ;
+    int         number ;
 
-} Content ;
-
+} FunctionList ;
 
 
-Node     *     createNode( int                             ) ;
-Node     *   nodeChildren( Node  *  ,  Children *          ) ;
-char     *     copyString( char  *  ,  int                 ) ;
-int      *      searchVar( char  *  ,  Stack    *          ) ;
-void         logStatement( Stack *  ,  char     *  ,  int  ) ;
-void             freeBloc( Stack *                         ) ;
-void        addMemoryBloc( Stack *                         ) ;
-Stack    *  getMemoryBloc( Stack *                         ) ;
-void          printMemory( Stack *                         ) ;
-void           initMemory( Stack **                        ) ;
-Children * createChildren( int                             ) ;
+
+Node     *     createNode( int                                ) ; // creer un noeud
+Node     *   nodeChildren( Node     *  ,  Children *          ) ; // associer à un noeud des fils
+char     *     copyString( char     *  ,  int                 ) ; // Copier une chaine de caractère
+int      *      searchVar( char     *  ,  Stack    *          ) ; // Chercher une variable dans la liste de varible définie
+void         logStatement( Stack    *  ,  char     *  ,  int  ) ; // Déclarer une variable
+void             freeBloc( Stack    *                         ) ; // libérer le bloc mémoire de la dernière fonction analysée
+void        addMemoryBloc( Stack    *                         ) ; // ajouter un bloc mémoire pour la nouvelle fonction analysée
+void          printMemory( Stack    *                         ) ; // Afficher la mémoire (Pour le debuggage)
+void           initMemory( Stack    **                        ) ; // initialiser la mémoire (malloc ...)
+Children * createChildren( int                                ) ; // creer des fils
+void         freeChildren( Children *                         ) ; // free des fils
+void         setContainer( Node     *                         ) ; // assosier un noeud à son conteneur
+void        stockFunction( Node     *  ,  FunctionList **     ) ; // stocker une fonction
+
+
 

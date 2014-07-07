@@ -1,13 +1,28 @@
+real carre( real a )
+
+	return a * a
+
+end
+
 void main()
 
-    real a
-    real b
+    real a = carre( 3 )
+    
+    real i = 0
 
-    a = 2
-
-    if( true )
-        a = 3
+    if( a > 3 )
+    	print("A plus grand que" , 3 )
+    	while( i < a )
+    		print("i",i)
+    		i = i + 1
+    	end
     else
-    	b = 5
-    end 
+    	print("A plus petit que" , 3 )
+    	for( i = 0 ; i < a ; i = i + 1 )
+    		print("i",i)
+    	end
+    end
+
+    print("i =", i )
 end
+
